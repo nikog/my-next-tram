@@ -1,7 +1,3 @@
-export type Route = {
-  shortName: string;
-};
-
 export interface GetRoutesQuery {
   routes: Array<Route>;
 }
@@ -51,13 +47,20 @@ export type StopTime = {
   pickupType: PickupType;
 };
 
+export type Route = {
+  shortName: string;
+  mode: vehicleMode;
+};
+
 export type Trip = {
   routeShortName: string;
   tripHeadsign: string;
+  route: Route;
 };
 
 export type Node = {
   id: string;
+  distance: number;
   place: DepartureRow;
 };
 

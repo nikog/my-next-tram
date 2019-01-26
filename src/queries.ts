@@ -24,6 +24,7 @@ export const getNearbyStops = gql`
     ) {
       edges {
         node {
+          id
           distance
           place {
             ... on DepartureRow {
@@ -41,6 +42,9 @@ export const getNearbyStops = gql`
                   routeShortName
                   tripHeadsign
                   directionId
+                  route {
+                    mode
+                  }
                 }
               }
             }

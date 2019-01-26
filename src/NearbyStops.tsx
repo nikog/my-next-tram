@@ -75,42 +75,10 @@ const NearbyStops: React.SFC<NearbyStopsProps> = ({
         distanceDepartureSort
       )(edges);
 
-      // const departures = distanceDepartureSort(
-      //   edges.filter(
-      //     ({
-      //       node: {
-      //         place: { stoptimes }
-      //       }
-      //     }) => stoptimes.length
-      //   )
-      // );
-
       return (
         <div>
           {departures.map(({ node: { place, id } }: { node: Node }) => (
             <DepartureRow stop={place} key={id} />
-            // <div key={id}>
-            //   {vehicleMode} {name}
-            //   {stoptimesWithoutPatterns.map(
-            //     ({
-            //       realtimeDeparture,
-            //       pickupType,
-            //       trip: { tripHeadsign, routeShortName }
-            //     }) => {
-            //       var t = new Date(1970, 0, 1); // Epoch
-            //       t.setSeconds(realtimeDeparture);
-            //       const time = t.toLocaleTimeString('fi-FI');
-
-            //       return (
-            //         <div key={realtimeDeparture}>
-            //           <p>
-            //             {pickupType} {tripHeadsign} {routeShortName} {time}
-            //           </p>
-            //         </div>
-            //       );
-            //     }
-            //   )}
-            // </div>
           ))}
         </div>
       );

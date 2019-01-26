@@ -8,6 +8,9 @@ import Routes from './Routes';
 import NearbyStops from './NearbyStops';
 import { Position } from './types';
 
+import './reset.css';
+import './style.css';
+
 const client = new ApolloClient({
   uri: 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
 });

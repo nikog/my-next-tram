@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Query } from 'react-apollo';
 
-import { getRoutes } from './queries';
-import { GetRoutesQuery, GetRoutesVariables, vehicleMode } from './types';
+import { getRoutes } from '../queries';
+import { GetRoutesQuery, GetRoutesVariables, vehicleMode } from '../types';
 import Route from './Route';
 import styled from 'styled-components';
 

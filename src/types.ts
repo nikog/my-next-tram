@@ -14,7 +14,8 @@ export type Position = {
 export enum vehicleMode {
   BUS = 'BUS',
   TRAM = 'TRAM',
-  RAIL = 'RAIL'
+  RAIL = 'RAIL',
+  SUBWAY = 'SUBWAY'
 }
 
 export enum PickupType {
@@ -25,6 +26,9 @@ export enum PickupType {
 export type DepartureRow = {
   stop: Stop;
   stoptimes: Array<StopTime>;
+  pattern: {
+    route: Route;
+  };
 };
 
 export type Stop = {
@@ -48,6 +52,7 @@ export type StopTime = {
 };
 
 export type Route = {
+  id: string;
   shortName: string;
   mode: vehicleMode;
 };

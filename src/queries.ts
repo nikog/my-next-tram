@@ -29,22 +29,25 @@ export const getNearbyStops = gql`
           place {
             ... on DepartureRow {
               stop {
+                id
                 name
               }
               pattern {
                 id
+                route {
+                  id
+                  mode
+                  shortName
+                }
               }
               stoptimes(omitNonPickups: true, timeRange: 7200) {
                 pickupType
                 serviceDay
                 realtimeDeparture
+
                 trip {
-                  routeShortName
                   tripHeadsign
                   directionId
-                  route {
-                    mode
-                  }
                 }
               }
             }

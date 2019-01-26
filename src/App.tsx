@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 
-import Vehicles from './Vehicles';
-import Routes from './Routes';
-import NearbyStops from './NearbyStops';
+import Vehicles from './components/Vehicles';
+import NearbyStops from './components/NearbyStops';
 import { Position } from './types';
 
 import './reset.css';

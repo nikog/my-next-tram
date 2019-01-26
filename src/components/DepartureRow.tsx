@@ -1,12 +1,13 @@
 import React from 'react';
-import { DepartureRow as DepartureRowType } from './types';
-import { lineColors, colors } from './colors';
+import { DepartureRow as DepartureRowType, Route } from '../types';
+import { lineColors, colors } from '../colors';
 import styled from 'styled-components';
 
-import { ReactComponent as SvgIcon } from './icons/arrow-alt-circle-light-solid.svg';
+import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
 
 type StopsProps = {
   stop: DepartureRowType;
+  distance: number;
 };
 
 type StyledDepartureRowProps = {
@@ -21,6 +22,10 @@ const StyledDepartureRow = styled.div`
   display: flex;
   align-items: center;
   flex-flow: row;
+
+  :first-child {
+    border-radius: 3px 3px 0 0;
+  }
 `;
 
 const RouteInfo = styled.div`
@@ -29,7 +34,7 @@ const RouteInfo = styled.div`
 `;
 
 const RouteName = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   background: white;
   border-radius: 50%;
@@ -37,8 +42,8 @@ const RouteName = styled.h3`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   color: ${(props: StyledDepartureRowProps) => props.lineColor};
 
   margin-bottom: 0.25rem;
@@ -71,8 +76,12 @@ const Stopname = styled.p`
 `;
 
 const DepartureRow: React.SFC<StopsProps> = ({
+  distance,
   stop: {
     stop: { name },
+    pattern: {
+      route: { mode, shortName }
+    },
     stoptimes
   }
 }) => {
@@ -82,11 +91,7 @@ const DepartureRow: React.SFC<StopsProps> = ({
 
   const {
     realtimeDeparture,
-    trip: {
-      tripHeadsign,
-      routeShortName,
-      route: { mode }
-    }
+    trip: { tripHeadsign }
   } = stoptimes[0];
 
   var t = new Date(1970, 0, 1); // Epoch
@@ -96,22 +101,24 @@ const DepartureRow: React.SFC<StopsProps> = ({
     minute: '2-digit'
   });
 
-  const lineColor = lineColors[parseInt(routeShortName, 10)] || colors[mode];
+  const lineColor = lineColors[parseInt(shortName, 10)] || colors[mode];
 
   return (
-    <div>
+    <React.Fragment>
       <StyledDepartureRow lineColor={lineColor}>
         <RouteInfo>
-          <RouteName lineColor={lineColor}>{routeShortName}</RouteName>
+          <RouteName lineColor={lineColor}>{shortName}</RouteName>
           <Destination>
             <StyledSvgIcon />
             {tripHeadsign}
           </Destination>
-          <Stopname>{name}</Stopname>
+          <Stopname>
+            {name} ({distance}m)
+          </Stopname>
         </RouteInfo>
         <DepartureTime>{time}</DepartureTime>
       </StyledDepartureRow>
-    </div>
+    </React.Fragment>
   );
 };
 

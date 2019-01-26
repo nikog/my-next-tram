@@ -16,36 +16,32 @@ export const getNearbyStops = gql`
     $longitude: Float!
   ) {
     nearest(
-      lat: $latitude # 60.164829
-      lon: $longitude # 24.934250
+      maxResults: 100
+      lat: $latitude
+      lon: $longitude
       filterByModes: $transportMode
-      filterByPlaceTypes: STOP
+      filterByPlaceTypes: DEPARTURE_ROW
     ) {
       edges {
         node {
+          distance
           place {
-            ... on Stop {
-              name
-              id
-              # direction
-              vehicleMode
-
-              cluster {
-                stops {
-                  name
-                  id
-                  vehicleMode
-                }
+            ... on DepartureRow {
+              stop {
+                name
               }
-
-              stoptimesWithoutPatterns {
+              pattern {
+                id
+              }
+              stoptimes(omitNonPickups: true, timeRange: 7200) {
+                pickupType
+                serviceDay
+                realtimeDeparture
                 trip {
                   routeShortName
                   tripHeadsign
+                  directionId
                 }
-                pickupType
-                realtimeArrival
-                realtimeDeparture
               }
             }
           }
@@ -54,3 +50,28 @@ export const getNearbyStops = gql`
     }
   }
 `;
+
+// ... on Stop {
+//   name
+//   id
+//   # direction
+//   vehicleMode
+
+//   cluster {
+//     stops {
+//       name
+//       id
+//       vehicleMode
+//     }
+//   }
+
+//   stoptimesWithoutPatterns {
+//     trip {
+//       routeShortName
+//       tripHeadsign
+//     }
+//     pickupType
+//     realtimeArrival
+//     realtimeDeparture
+//   }
+// }

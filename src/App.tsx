@@ -34,10 +34,9 @@ const useLocation = () => {
 
 const App = () => {
   const [vehicle, setVehicle] = useState(null);
-  const position = useLocation();
+  // const position = useLocation();
 
-  console.log(position);
-
+  const position = { latitude: 60.164829, longitude: 24.93425 };
   return (
     <ApolloProvider client={client}>
       <Vehicles onSelectVehicle={setVehicle} />

@@ -5,11 +5,13 @@
   "dependencies": {
     "@types/jest": "23.3.11",
     "@types/node": "10.12.18",
+    "@types/ramda": "^0.25.47",
     "@types/react": "16.7.18",
     "@types/react-dom": "16.0.11",
     "@types/styled-components": "^4.1.4",
     "apollo-boost": "^0.1.23",
     "graphql": "^14.0.2",
+    "ramda": "^0.26.1",
     "react": "^16.7.0-alpha.2",
     "react-apollo": "^2.3.3",
     "react-dom": "^16.7.0-alpha.2",

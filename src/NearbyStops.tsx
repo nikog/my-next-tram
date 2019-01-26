@@ -1,16 +1,39 @@
 import React from 'react';
-
 import { Query } from 'react-apollo';
+
+import * as R from 'ramda';
 
 import { getNearbyStops } from './queries';
 import {
   GetNearbyStopsQuery,
   GetNearbyStopsVariables,
   vehicleMode,
-  Position
+  Position,
+  Node
 } from './types';
-import styled from 'styled-components';
-import Stop from './Stop';
+
+import DepartureRow from './DepartureRow';
+
+const getTime = ({ serviceDay, realtimeDeparture }: any) =>
+  serviceDay + realtimeDeparture;
+
+const filterNoStopTimes = R.reject(
+  R.pipe(
+    R.pathOr([], ['node', 'place', 'stoptimes']),
+    R.length,
+    R.equals(0)
+  )
+);
+
+const distanceDepartureSort = R.sortWith([
+  R.ascend(R.path(['node', 'distance'])),
+  R.ascend(
+    R.pipe(
+      R.path(['node', 'place', 'stoptimes', 0, 'realtimeDeparture']),
+      getTime
+    )
+  )
+]);
 
 class NearbyStopsQuery extends Query<
   GetNearbyStopsQuery,
@@ -47,10 +70,25 @@ const NearbyStops: React.SFC<NearbyStopsProps> = ({
         nearest: { edges }
       } = data;
 
+      const departures = R.pipe<any[], any[], any[]>(
+        filterNoStopTimes,
+        distanceDepartureSort
+      )(edges);
+
+      // const departures = distanceDepartureSort(
+      //   edges.filter(
+      //     ({
+      //       node: {
+      //         place: { stoptimes }
+      //       }
+      //     }) => stoptimes.length
+      //   )
+      // );
+
       return (
         <div>
-          {edges.map(({ node: { place, id } }) => (
-            <Stop stop={place} key={id} />
+          {departures.map(({ node: { place, id } }: { node: Node }) => (
+            <DepartureRow stop={place} key={id} />
             // <div key={id}>
             //   {vehicleMode} {name}
             //   {stoptimesWithoutPatterns.map(

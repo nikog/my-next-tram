@@ -26,7 +26,12 @@ export enum PickupType {
   NONE = 'NONE'
 }
 
-export type Place = {
+export type DepartureRow = {
+  stop: Stop;
+  stoptimes: Array<StopTime>;
+};
+
+export type Stop = {
   name: string;
   id: string;
   vehicleMode: vehicleMode;
@@ -35,11 +40,12 @@ export type Place = {
 };
 
 export type Cluster = {
-  stops: Array<Place>;
+  stops: Array<Stop>;
 };
 
 export type StopTime = {
   trip: Trip;
+  serviceDay: number;
   realtimeArrival: number;
   realtimeDeparture: number;
   pickupType: PickupType;
@@ -50,13 +56,15 @@ export type Trip = {
   tripHeadsign: string;
 };
 
+export type Node = {
+  id: string;
+  place: DepartureRow;
+};
+
 export interface GetNearbyStopsQuery {
   nearest: {
     edges: Array<{
-      node: {
-        id: string;
-        place: Place;
-      };
+      node: Node;
     }>;
   };
 }

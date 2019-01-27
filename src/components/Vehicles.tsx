@@ -1,5 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css, AnyStyledComponent } from 'styled-components';
+
+import * as R from 'ramda';
+
+import { darken, transparentize, lighten } from 'polished';
 
 import { vehicleMode } from '../types';
 
@@ -11,17 +15,30 @@ import { ReactComponent as BusIcon } from '../icons/bus.svg';
 import { colors } from '../colors';
 
 interface VehicleProps {
-  onSelectVehicle: Function;
+  dispatch: Function;
+  activeFilters: vehicleMode[];
 }
 
 type ButtonProps = {
   color: string;
+  isActive?: boolean;
 };
 
 const ButtonContainer = styled.div`
   padding: 1rem;
   display: flex;
   justify-content: flex-end;
+`;
+
+const buttonActiveStyles = css`
+  background: ${(props: ButtonProps) => darken(0.15, props.color)};
+  box-shadow: inset 0 3px 0 0
+      ${(props: ButtonProps) => darken(0.2, props.color)},
+    0 3px 0 0 ${(props: ButtonProps) => darken(0.15, props.color)};
+
+  :hover {
+    background: ${(props: ButtonProps) => darken(0.1, props.color)};
+  }
 `;
 
 const Button = styled.button`
@@ -34,6 +51,14 @@ const Button = styled.button`
   cursor: pointer;
   position: relative;
 
+  box-shadow: 0 3px 0 0 ${(props: ButtonProps) => darken(0.1, props.color)};
+
+  :hover {
+    background: ${(props: ButtonProps) => lighten(0.05, props.color)};
+  }
+
+  ${(props: ButtonProps) => props.isActive && buttonActiveStyles};
+
   :focus {
     z-index: 1;
   }
@@ -43,11 +68,11 @@ const Button = styled.button`
   }
 
   :first-child {
-    border-radius: 3px 0 0 3px;
+    border-radius: 6px 0 0 6px;
   }
 
   :last-child {
-    border-radius: 0 3px 3px 0;
+    border-radius: 0 6px 6px 0;
   }
 
   svg {
@@ -64,22 +89,34 @@ const icons: { [index: string]: React.SFC } = {
   SUBWAY: SubwayIcon
 };
 
-const Vehicles: React.SFC<VehicleProps> = ({ onSelectVehicle }) => (
+const Vehicles: React.SFC<VehicleProps> = ({ dispatch, activeFilters }) => (
   <ButtonContainer>
-    {Object.keys(vehicleMode).map(val => {
-      const Icon = icons[val];
+    {R.pipe(
+      R.mapObjIndexed((val: vehicleMode) => {
+        const Icon = icons[val];
 
-      return (
-        <Button
-          key={val}
-          type="button"
-          color={colors[val]}
-          onClick={() => onSelectVehicle(val)}
-        >
-          {Icon ? <Icon /> : val}
-        </Button>
-      );
-    })}
+        const isActive = activeFilters.includes(val);
+
+        return (
+          <Button
+            key={val}
+            type="button"
+            color={colors[val]}
+            isActive={isActive}
+            onClick={() => {
+              if (isActive) {
+                dispatch({ type: 'removeFilter', payload: val });
+              } else {
+                dispatch({ type: 'addFilter', payload: val });
+              }
+            }}
+          >
+            {Icon ? <Icon /> : val}
+          </Button>
+        );
+      }),
+      R.values
+    )(vehicleMode)}
   </ButtonContainer>
 );
 

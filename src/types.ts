@@ -80,5 +80,5 @@ export interface GetNearbyStopsQuery {
 }
 
 export interface GetNearbyStopsVariables {
-  transportMode: vehicleMode | null;
+  transportMode: vehicleMode[] | null;
 }

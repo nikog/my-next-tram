@@ -58,61 +58,67 @@ class NearbyStopsQuery extends Query<
 > {}
 
 type NearbyStopsProps = {
-  vehicleMode: vehicleMode | null;
+  vehicleModeFilters: vehicleMode[];
   position: Position;
 };
 
 const NearbyStops: React.SFC<NearbyStopsProps> = ({
-  vehicleMode,
+  vehicleModeFilters,
   position: { latitude, longitude }
-}) => (
-  <NearbyStopsQuery
-    query={getNearbyStops}
-    variables={{ transportMode: vehicleMode, latitude, longitude }}
-  >
-    {({ loading, error, data }) => {
-      if (loading) {
-        return <p>Loading</p>;
-      }
+}) => {
+  const transportMode = vehicleModeFilters.length
+    ? vehicleModeFilters
+    : R.values(vehicleMode);
 
-      if (error) {
-        return <p>Error</p>;
-      }
+  return (
+    <NearbyStopsQuery
+      query={getNearbyStops}
+      variables={{ transportMode, latitude, longitude }}
+    >
+      {({ loading, error, data }) => {
+        if (loading) {
+          return <p>Loading</p>;
+        }
 
-      if (!data) {
-        return <p>no data</p>;
-      }
+        if (error) {
+          return <p>Error</p>;
+        }
 
-      const {
-        nearest: { edges }
-      } = data;
+        if (!data) {
+          return <p>no data</p>;
+        }
 
-      const departures = R.pipe<any[], any[], any[], any>(
-        filterNoStopTimes,
-        groupByStopAndPattern,
-        distanceDepartureSort
-      )(edges);
+        const {
+          nearest: { edges }
+        } = data;
 
-      const departureRows = R.pipe<object, object, object[]>(
-        R.mapObjIndexed((nodes: Array<{ node: Node }>, key: string) => {
-          if (nodes.length === 2) {
-            return <GroupedDepartureRow nodes={nodes} key={key} />;
-          }
+        const departures = R.pipe<any[], any[], any[], any>(
+          filterNoStopTimes,
+          groupByStopAndPattern,
+          distanceDepartureSort
+        )(edges);
 
-          const [
-            {
-              node: { place, distance }
+        const departureRows = R.pipe<object, object, object[]>(
+          R.mapObjIndexed((nodes: Array<{ node: Node }>, key: string) => {
+            if (nodes.length === 2) {
+              return <GroupedDepartureRow nodes={nodes} key={key} />;
             }
-          ] = nodes;
 
-          return <DepartureRow stop={place} distance={distance} key={key} />;
-        }),
-        R.values
-      )(departures);
+            const [
+              {
+                node: { place, distance }
+              }
+            ] = nodes;
 
-      return <Container>{departureRows}</Container>;
-    }}
-  </NearbyStopsQuery>
-);
+            return <DepartureRow stop={place} distance={distance} key={key} />;
+          }),
+          R.values
+        )(departures);
+
+        return <Container>{departureRows}</Container>;
+      }}
+    </NearbyStopsQuery>
+  );
+};
 
 export default NearbyStops;

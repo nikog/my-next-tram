@@ -35,6 +35,7 @@ const RouteName = styled.h3`
   font-size: 2rem;
   font-weight: 700;
   color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 const RouteNameCircled = styled.h3`
@@ -64,6 +65,7 @@ const Destination = styled.p`
   align-items: center;
   font-size: 1rem;
   font-weight: 400;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 const StyledSvgIcon = styled(SvgIcon)`

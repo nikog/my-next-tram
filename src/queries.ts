@@ -11,7 +11,7 @@ export const getRoutes = gql`
 
 export const getNearbyStops = gql`
   query NearbyStops(
-    $transportMode: [Mode]
+    $transportMode: [Mode!]!
     $latitude: Float!
     $longitude: Float!
   ) {

@@ -13,7 +13,10 @@ import {
 } from '../types';
 
 import DepartureRow from './DepartureRow';
-import { object } from 'prop-types';
+import GroupedDepartureRow from './GroupedDepartureRow';
+import styled from 'styled-components';
+
+const Container = styled.div``;
 
 const getTime = ({ serviceDay, realtimeDeparture }: any) =>
   serviceDay + realtimeDeparture;
@@ -30,7 +33,7 @@ const distanceDepartureSort = R.sortWith([
   R.ascend(R.path([0, 'node', 'distance'])),
   R.ascend(
     R.pipe(
-      R.path([0, 'node', 'place', 'stoptimes', 0, 'realtimeDeparture']),
+      R.path([0, 'node', 'place', 'stoptimes', 0]),
       getTime
     )
   )
@@ -47,9 +50,6 @@ const groupByStopAndPattern = R.pipe(
     ])
   ),
   R.values
-  // R.map<object, object[]>(
-  //   R.groupBy(R.pathOr<string>('unknown', ['node', 'place', 'stop', 'name']))
-  // )
 );
 
 class NearbyStopsQuery extends Query<
@@ -94,49 +94,23 @@ const NearbyStops: React.SFC<NearbyStopsProps> = ({
       )(edges);
 
       const departureRows = R.pipe<object, object, object[]>(
-        R.mapObjIndexed(
-          (
-            nodes: [{ node: Node }, { node: Node | undefined }],
-            key: string
-          ) => {
-            const [
-              { node: firstNode },
-              { node: secondNode } = { node: undefined }
-            ] = nodes;
-
-            return (
-              <React.Fragment key={key}>
-                {firstNode && (
-                  <DepartureRow
-                    stop={firstNode.place}
-                    distance={firstNode.distance}
-                  />
-                )}
-                {secondNode && (
-                  <DepartureRow
-                    stop={secondNode.place}
-                    distance={secondNode.distance}
-                  />
-                )}
-              </React.Fragment>
-            );
+        R.mapObjIndexed((nodes: Array<{ node: Node }>, key: string) => {
+          if (nodes.length === 2) {
+            return <GroupedDepartureRow nodes={nodes} key={key} />;
           }
-        ),
+
+          const [
+            {
+              node: { place, distance }
+            }
+          ] = nodes;
+
+          return <DepartureRow stop={place} distance={distance} key={key} />;
+        }),
         R.values
       )(departures);
 
-      return (
-        <div>
-          {departureRows}
-          {/* {R.map(
-            R.map(
-              R.map(({ node: { place, id } }: { node: Node }) => (
-                <DepartureRow stop={place} key={id} />
-              ))
-            )
-          )(departures)} */}
-        </div>
-      );
+      return <Container>{departureRows}</Container>;
     }}
   </NearbyStopsQuery>
 );

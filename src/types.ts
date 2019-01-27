@@ -27,6 +27,7 @@ export type DepartureRow = {
   stop: Stop;
   stoptimes: Array<StopTime>;
   pattern: {
+    headsign: string;
     route: Route;
   };
 };
@@ -49,6 +50,7 @@ export type StopTime = {
   realtimeArrival: number;
   realtimeDeparture: number;
   pickupType: PickupType;
+  headsign: string;
 };
 
 export type Route = {

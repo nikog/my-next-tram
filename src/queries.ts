@@ -34,19 +34,21 @@ export const getNearbyStops = gql`
               }
               pattern {
                 id
+                headsign
+
                 route {
                   id
                   mode
                   shortName
                 }
               }
-              stoptimes(omitNonPickups: true, timeRange: 7200) {
+              stoptimes(omitNonPickups: true, timeRange: 3600) {
                 pickupType
                 serviceDay
                 realtimeDeparture
+                headsign
 
                 trip {
-                  tripHeadsign
                   directionId
                 }
               }

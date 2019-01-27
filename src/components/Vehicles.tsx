@@ -21,8 +21,7 @@ type ButtonProps = {
 const ButtonContainer = styled.div`
   padding: 1rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 `;
 
 const Button = styled.button`

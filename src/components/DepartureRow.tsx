@@ -1,31 +1,29 @@
 import React from 'react';
-import { DepartureRow as DepartureRowType, Route } from '../types';
+import { DepartureRow as DepartureRowType, Route, vehicleMode } from '../types';
 import { lineColors, colors } from '../colors';
-import styled from 'styled-components';
+import styled, { AnyStyledComponent } from 'styled-components';
 
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
 
 type StopsProps = {
   stop: DepartureRowType;
   distance: number;
+  ref?: React.Ref<HTMLElement> | null;
+  rowRef?: React.Ref<HTMLElement> | null;
 };
 
 type StyledDepartureRowProps = {
   lineColor: string;
 };
 
-const StyledDepartureRow = styled.div`
+const StyledDepartureRow: AnyStyledComponent = styled.div`
   background: ${(props: StyledDepartureRowProps) => props.lineColor};
   color: white;
   padding: 1rem;
-  border-bottom: 1px solid rgba(100, 100, 100, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   flex-flow: row;
-
-  :first-child {
-    border-radius: 3px 3px 0 0;
-  }
 `;
 
 const RouteInfo = styled.div`
@@ -34,6 +32,12 @@ const RouteInfo = styled.div`
 `;
 
 const RouteName = styled.h3`
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+`;
+
+const RouteNameCircled = styled.h3`
   font-size: 1.25rem;
   font-weight: 700;
   background: white;
@@ -71,7 +75,7 @@ const StyledSvgIcon = styled(SvgIcon)`
 `;
 
 const Stopname = styled.p`
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 300;
 `;
 
@@ -80,19 +84,18 @@ const DepartureRow: React.SFC<StopsProps> = ({
   stop: {
     stop: { name },
     pattern: {
+      headsign,
       route: { mode, shortName }
     },
     stoptimes
-  }
+  },
+  rowRef
 }) => {
   if (!stoptimes.length) {
     return null;
   }
 
-  const {
-    realtimeDeparture,
-    trip: { tripHeadsign }
-  } = stoptimes[0];
+  const { headsign: longHeadsign, realtimeDeparture } = stoptimes[0];
 
   var t = new Date(1970, 0, 1); // Epoch
   t.setSeconds(realtimeDeparture);
@@ -104,22 +107,30 @@ const DepartureRow: React.SFC<StopsProps> = ({
   const lineColor = lineColors[parseInt(shortName, 10)] || colors[mode];
 
   return (
-    <React.Fragment>
-      <StyledDepartureRow lineColor={lineColor}>
-        <RouteInfo>
-          <RouteName lineColor={lineColor}>{shortName}</RouteName>
-          <Destination>
-            <StyledSvgIcon />
-            {tripHeadsign}
-          </Destination>
-          <Stopname>
-            {name} ({distance}m)
-          </Stopname>
-        </RouteInfo>
-        <DepartureTime>{time}</DepartureTime>
-      </StyledDepartureRow>
-    </React.Fragment>
+    <StyledDepartureRow lineColor={lineColor} ref={rowRef}>
+      <RouteInfo>
+        {/* {mode !== vehicleMode.BUS ? (
+            <RouteNameCircled lineColor={lineColor}>
+              {shortName}
+            </RouteNameCircled>
+          ) : ( */}
+        <RouteName>{shortName}</RouteName>
+        {/* )} */}
+        <Destination>
+          <StyledSvgIcon />
+          {mode === vehicleMode.RAIL ? longHeadsign : headsign}
+        </Destination>
+        <Stopname>
+          {name} ({distance}m)
+        </Stopname>
+      </RouteInfo>
+      <DepartureTime>{time}</DepartureTime>
+    </StyledDepartureRow>
   );
 };
 
-export default DepartureRow;
+const DepartureRowWithRefForward: React.ComponentType<
+  StopsProps
+> = React.forwardRef((props, ref) => <DepartureRow rowRef={ref} {...props} />);
+
+export default DepartureRowWithRefForward;

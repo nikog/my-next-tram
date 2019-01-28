@@ -7,6 +7,8 @@ import DepartureRow from './DepartureRow';
 
 import { Node } from '../types';
 
+import { useIntersection } from '../utils/hooks';
+
 const Container = styled.div`
   position: relative;
 `;
@@ -57,45 +59,14 @@ const PageIndicator = styled.div`
   }
 `;
 
-const useIntersection = (
-  targets: React.RefObject<HTMLElement>[],
-  options: object
-): [IntersectionObserverEntry[], React.RefObject<HTMLElement>] => {
-  const [entries, setEntries] = useState<IntersectionObserverEntry[]>([]);
-  const containerRef = useRef<HTMLElement>(null);
-
-  const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-    setEntries(entries);
-  };
-
-  useEffect(
-    () => {
-      const observer = new IntersectionObserver(handleIntersection, {
-        root: containerRef.current,
-        ...options
-      });
-
-      R.map((target: React.RefObject<HTMLElement>) => {
-        if (target && target.current) {
-          observer.observe(target.current);
-        }
-      })(targets);
-
-      return () => observer.disconnect();
-    },
-    [containerRef]
-  );
-
-  return [entries, containerRef];
-};
-
 type GroupedDepartureRowProps = {
   nodes: Array<{ node: Node }>;
 };
 
 const GroupedDepartureRow: React.SFC<GroupedDepartureRowProps> = ({
-  nodes: [{ node: firstNode }, { node: secondNode }]
+  nodes
 }) => {
+  const [{ node: firstNode }, { node: secondNode }] = nodes;
   const firstNodeRef = useRef<HTMLElement>(null);
   const secondNodeRef = useRef<HTMLElement>(null);
 
@@ -109,9 +80,16 @@ const GroupedDepartureRow: React.SFC<GroupedDepartureRowProps> = ({
   return (
     <Container>
       <PageIndicatorList>
-        {R.addIndex<IntersectionObserverEntry, any>(R.map)((entry, key) => (
-          <PageIndicator key={key} active={entry.isIntersecting} />
-        ))(entries)}
+        {R.addIndex<{}, any>(R.map)((node, key) => {
+          const entry = entries[key];
+
+          return (
+            <PageIndicator
+              key={key}
+              active={entry ? entry.isIntersecting : false}
+            />
+          );
+        })(nodes)}
       </PageIndicatorList>
       <Group ref={containerRef}>
         <DepartureRow

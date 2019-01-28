@@ -1,11 +1,3 @@
-export interface GetRoutesQuery {
-  routes: Array<Route>;
-}
-
-export interface GetRoutesVariables {
-  transportMode: vehicleMode | null;
-}
-
 export type Position = {
   latitude?: number;
   longitude?: number;

@@ -1,124 +1,60 @@
 import React from 'react';
-import { Query } from 'react-apollo';
 
-import * as R from 'ramda';
+import posed, { PoseGroup } from 'react-pose';
 
-import { getNearbyStops } from '../queries';
-import {
-  GetNearbyStopsQuery,
-  GetNearbyStopsVariables,
-  vehicleMode,
-  Position,
-  Node
-} from '../types';
-
-import DepartureRow from './DepartureRow';
-import GroupedDepartureRow from './GroupedDepartureRow';
 import styled from 'styled-components';
 
-const Container = styled.div``;
-
-const getTime = ({ serviceDay, realtimeDeparture }: any) =>
-  serviceDay + realtimeDeparture;
-
-const filterNoStopTimes = R.reject(
-  R.pipe(
-    R.pathOr([], ['node', 'place', 'stoptimes']),
-    R.length,
-    R.equals(0)
-  )
-);
-
-const distanceDepartureSort = R.sortWith([
-  R.ascend(R.path([0, 'node', 'distance'])),
-  R.ascend(
-    R.pipe(
-      R.path([0, 'node', 'place', 'stoptimes', 0]),
-      getTime
-    )
-  )
-]);
-
-const groupByStopAndPattern = R.pipe(
-  R.groupBy(
-    R.pathOr<string>('unknown', [
-      'node',
-      'place',
-      'pattern',
-      'route',
-      'shortName'
-    ])
-  ),
-  R.values
-);
-
-class NearbyStopsQuery extends Query<
-  GetNearbyStopsQuery,
-  GetNearbyStopsVariables
-> {}
+const AnimatedRow = posed.div({
+  enter: {
+    opacity: 1,
+    delay: 300,
+    transition: {
+      duration: 300,
+      ease: [0, 0, 0.2, 1]
+    }
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      duration: 250,
+      ease: [0.4, 0, 1, 1]
+    }
+  }
+});
 
 type NearbyStopsProps = {
-  vehicleModeFilters: vehicleMode[];
-  position: Position;
+  loading: boolean;
+  data: { nearest: {} };
+  departures: object[];
 };
 
-const NearbyStops: React.SFC<NearbyStopsProps> = ({
-  vehicleModeFilters,
-  position: { latitude, longitude }
-}) => {
-  const transportMode = vehicleModeFilters.length
-    ? vehicleModeFilters
-    : R.values(vehicleMode);
+class NearbyStops extends React.Component<NearbyStopsProps, {}> {
+  state = {
+    key: 'unique'
+  };
 
-  return (
-    <NearbyStopsQuery
-      query={getNearbyStops}
-      variables={{ transportMode, latitude, longitude }}
-    >
-      {({ loading, error, data }) => {
-        if (loading) {
-          return <p>Loading</p>;
-        }
+  shouldComponentUpdate(nextProps: NearbyStopsProps) {
+    return nextProps.data.nearest !== this.props.data.nearest;
+  }
 
-        if (error) {
-          return <p>Error</p>;
-        }
+  componentDidUpdate(prevProps: NearbyStopsProps) {
+    if (prevProps.data.nearest !== this.props.data.nearest) {
+      this.setState({
+        key: new Date().getTime()
+      });
+    }
+  }
 
-        if (!data) {
-          return <p>no data</p>;
-        }
+  render() {
+    const { departures } = this.props;
+    const { key } = this.state;
 
-        const {
-          nearest: { edges }
-        } = data;
-
-        const departures = R.pipe<any[], any[], any[], any>(
-          filterNoStopTimes,
-          groupByStopAndPattern,
-          distanceDepartureSort
-        )(edges);
-
-        const departureRows = R.pipe<object, object, object[]>(
-          R.mapObjIndexed((nodes: Array<{ node: Node }>, key: string) => {
-            if (nodes.length === 2) {
-              return <GroupedDepartureRow nodes={nodes} key={key} />;
-            }
-
-            const [
-              {
-                node: { place, distance }
-              }
-            ] = nodes;
-
-            return <DepartureRow stop={place} distance={distance} key={key} />;
-          }),
-          R.values
-        )(departures);
-
-        return <Container>{departureRows}</Container>;
-      }}
-    </NearbyStopsQuery>
-  );
-};
+    return (
+      <PoseGroup animateOnMount={true} flipMove={false}>
+        <AnimatedRow key={key}>{departures}</AnimatedRow>
+      </PoseGroup>
+    );
+  }
+}
 
 export default NearbyStops;

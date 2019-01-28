@@ -12,7 +12,7 @@ import { ReactComponent as RailIcon } from '../icons/rail.svg';
 import { ReactComponent as SubwayIcon } from '../icons/subway.svg';
 import { ReactComponent as BusIcon } from '../icons/bus.svg';
 
-import { colors } from '../colors';
+import { colors } from '../utils/colors';
 
 interface VehicleProps {
   dispatch: Function;

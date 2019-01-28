@@ -1,14 +1,5 @@
 import gql from 'graphql-tag';
 
-export const getRoutes = gql`
-  query Routes($transportMode: [Mode]) {
-    routes(transportModes: $transportMode) {
-      shortName
-      id
-    }
-  }
-`;
-
 export const getNearbyStops = gql`
   query NearbyStops(
     $transportMode: [Mode!]!
@@ -59,28 +50,3 @@ export const getNearbyStops = gql`
     }
   }
 `;
-
-// ... on Stop {
-//   name
-//   id
-//   # direction
-//   vehicleMode
-
-//   cluster {
-//     stops {
-//       name
-//       id
-//       vehicleMode
-//     }
-//   }
-
-//   stoptimesWithoutPatterns {
-//     trip {
-//       routeShortName
-//       tripHeadsign
-//     }
-//     pickupType
-//     realtimeArrival
-//     realtimeDeparture
-//   }
-// }

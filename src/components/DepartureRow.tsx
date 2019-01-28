@@ -1,6 +1,6 @@
 import React from 'react';
 import { DepartureRow as DepartureRowType, Route, vehicleMode } from '../types';
-import { lineColors, colors } from '../colors';
+import { lineColors, colors } from '../utils/colors';
 import styled, { AnyStyledComponent } from 'styled-components';
 
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
@@ -58,6 +58,7 @@ const DepartureTime = styled.p`
   font-size: 1.5rem;
   font-weight: 500;
   margin-left: auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 const Destination = styled.p`

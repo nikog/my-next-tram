@@ -1,4 +1,4 @@
-import { vehicleMode } from './types';
+import { vehicleMode } from '../types';
 
 const colors: { [index: string]: string } = {
   BUS: '#007AC9',

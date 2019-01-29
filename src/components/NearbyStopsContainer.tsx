@@ -19,6 +19,7 @@ import DepartureRow from './DepartureRow';
 import GroupedDepartureRow from './GroupedDepartureRow';
 import styled from 'styled-components';
 import { tween } from 'popmotion';
+import { getColor } from '../utils/colors';
 
 const Container = styled.div``;
 
@@ -118,11 +119,25 @@ const NearbyStopsContainer: React.SFC<NearbyStopsProps> = ({
           R.values
         )(departures);
 
+        const color = R.pipe(
+          R.ifElse(
+            R.isEmpty,
+            R.always(null),
+            R.pipe(
+              R.last,
+              R.pathOr({}, [0, 'node', 'place', 'pattern', 'route']),
+              R.props(['shortName', 'mode']),
+              getColor
+            )
+          )
+        )(departures);
+
         return (
           <NearbyStops
             departures={departureRows}
             data={data}
             loading={loading}
+            color={color}
           />
         );
       }}

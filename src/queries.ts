@@ -37,6 +37,7 @@ export const getNearbyStops = gql`
                 pickupType
                 serviceDay
                 realtimeDeparture
+                realtime
                 headsign
 
                 trip {

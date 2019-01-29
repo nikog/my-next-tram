@@ -24,10 +24,20 @@ type ButtonProps = {
   isActive?: boolean;
 };
 
-const ButtonContainer = styled.div`
+const Container = styled.div`
   padding: 1rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  width: 100vw;
+  z-index: 3;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-flow: row;
 `;
 
 const buttonActiveStyles = css`
@@ -52,6 +62,10 @@ const Button = styled.button`
   position: relative;
 
   box-shadow: 0 3px 0 0 ${(props: ButtonProps) => darken(0.1, props.color)};
+
+  :focus {
+    outline: 0;
+  }
 
   :hover {
     background: ${(props: ButtonProps) => lighten(0.05, props.color)};
@@ -90,34 +104,36 @@ const icons: { [index: string]: React.SFC } = {
 };
 
 const Vehicles: React.SFC<VehicleProps> = ({ dispatch, activeFilters }) => (
-  <ButtonContainer>
-    {R.pipe(
-      R.mapObjIndexed((val: vehicleMode) => {
-        const Icon = icons[val];
+  <Container>
+    <ButtonContainer>
+      {R.pipe(
+        R.mapObjIndexed((val: vehicleMode) => {
+          const Icon = icons[val];
 
-        const isActive = activeFilters.includes(val);
+          const isActive = activeFilters.includes(val);
 
-        return (
-          <Button
-            key={val}
-            type="button"
-            color={colors[val]}
-            isActive={isActive}
-            onClick={() => {
-              if (isActive) {
-                dispatch({ type: 'removeFilter', payload: val });
-              } else {
-                dispatch({ type: 'addFilter', payload: val });
-              }
-            }}
-          >
-            {Icon ? <Icon /> : val}
-          </Button>
-        );
-      }),
-      R.values
-    )(vehicleMode)}
-  </ButtonContainer>
+          return (
+            <Button
+              key={val}
+              type="button"
+              color={colors[val]}
+              isActive={isActive}
+              onClick={() => {
+                if (isActive) {
+                  dispatch({ type: 'removeFilter', payload: val });
+                } else {
+                  dispatch({ type: 'addFilter', payload: val });
+                }
+              }}
+            >
+              {Icon ? <Icon /> : val}
+            </Button>
+          );
+        }),
+        R.values
+      )(vehicleMode)}
+    </ButtonContainer>
+  </Container>
 );
 
 export default Vehicles;

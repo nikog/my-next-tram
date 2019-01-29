@@ -1,4 +1,5 @@
 import { vehicleMode } from '../types';
+import { string } from 'prop-types';
 
 const colors: { [index: string]: string } = {
   BUS: '#007AC9',
@@ -22,4 +23,7 @@ const lineColors: { [index: number]: string } = {
   10: 'rgb(252,182,22)' // colors.bike
 };
 
-export { colors, lineColors };
+const getColor = ([shortName, mode]: string[]) =>
+  lineColors[parseInt(shortName, 10)] || colors[mode];
+
+export { colors, lineColors, getColor };

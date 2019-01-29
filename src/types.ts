@@ -41,6 +41,7 @@ export type StopTime = {
   serviceDay: number;
   realtimeArrival: number;
   realtimeDeparture: number;
+  realtime: boolean;
   pickupType: PickupType;
   headsign: string;
 };

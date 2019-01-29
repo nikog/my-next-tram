@@ -20,6 +20,7 @@ const Group: AnyStyledComponent = styled.div`
   scroll-snap-type: x mandatory;
   scroll-behaviour: smooth;
   position: relative;
+  -webkit-overfow-scrolling: touch;
 
   ::-webkit-scrollbar {
     display: none;

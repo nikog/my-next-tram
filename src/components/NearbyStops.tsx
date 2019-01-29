@@ -1,8 +1,16 @@
 import React from 'react';
 
+import * as R from 'ramda';
+
 import posed, { PoseGroup } from 'react-pose';
 
 import styled from 'styled-components';
+
+type ContainerProps = {
+  color?: string | null;
+};
+
+const Container = styled.div``;
 
 const AnimatedRow = posed.div({
   enter: {
@@ -22,10 +30,17 @@ const AnimatedRow = posed.div({
   }
 });
 
+const StyledAnimatedRow = styled(AnimatedRow)`
+  min-height: 100vh;
+  padding-bottom: 5rem;
+  background: ${(props: ContainerProps) => props.color};
+`;
+
 type NearbyStopsProps = {
   loading: boolean;
   data: { nearest: {} };
   departures: object[];
+  color?: string;
 };
 
 class NearbyStops extends React.Component<NearbyStopsProps, {}> {
@@ -46,13 +61,17 @@ class NearbyStops extends React.Component<NearbyStopsProps, {}> {
   }
 
   render() {
-    const { departures } = this.props;
+    const { departures, color } = this.props;
     const { key } = this.state;
 
     return (
-      <PoseGroup animateOnMount={true} flipMove={false}>
-        <AnimatedRow key={key}>{departures}</AnimatedRow>
-      </PoseGroup>
+      <Container>
+        <PoseGroup animateOnMount={true} flipMove={false}>
+          <StyledAnimatedRow key={key} color={color}>
+            {departures}
+          </StyledAnimatedRow>
+        </PoseGroup>
+      </Container>
     );
   }
 }

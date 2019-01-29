@@ -98,11 +98,12 @@ const DepartureRow: React.SFC<StopsProps> = ({
     return null;
   }
 
-  const { headsign: longHeadsign, realtimeDeparture } = stoptimes[0];
+  const { headsign: longHeadsign, realtimeDeparture, realtime } = stoptimes[0];
 
   var t = new Date(1970, 0, 1); // Epoch
   t.setSeconds(realtimeDeparture);
-  const time = t.toLocaleTimeString([], {
+  const time = t.toLocaleTimeString('en-GB', {
+    hour12: false,
     hour: '2-digit',
     minute: '2-digit'
   });
@@ -127,7 +128,10 @@ const DepartureRow: React.SFC<StopsProps> = ({
           {name} ({distance}m)
         </Stopname>
       </RouteInfo>
-      <DepartureTime>{time}</DepartureTime>
+      <DepartureTime>
+        {!realtime && '~'}
+        {time}
+      </DepartureTime>
     </StyledDepartureRow>
   );
 };

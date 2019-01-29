@@ -41,14 +41,10 @@ const ButtonContainer = styled.div`
 `;
 
 const buttonActiveStyles = css`
-  background: ${(props: ButtonProps) => darken(0.15, props.color)};
+  background: ${(props: ButtonProps) => darken(0.05, props.color)};
+  transform: translateY(3px);
   box-shadow: inset 0 3px 0 0
-      ${(props: ButtonProps) => darken(0.2, props.color)},
-    0 3px 0 0 ${(props: ButtonProps) => darken(0.15, props.color)};
-
-  :hover {
-    background: ${(props: ButtonProps) => darken(0.1, props.color)};
-  }
+    ${(props: ButtonProps) => darken(0.25, props.color)} !important;
 `;
 
 const Button = styled.button`
@@ -68,7 +64,17 @@ const Button = styled.button`
   }
 
   :hover {
+    ${(props: ButtonProps) =>
+      !props.isActive &&
+      css`
+        transform: translateY(-1px);
+      `};
     background: ${(props: ButtonProps) => lighten(0.05, props.color)};
+    box-shadow: 0 4px 0 0 ${(props: ButtonProps) => darken(0.1, props.color)};
+  }
+
+  :active {
+    ${buttonActiveStyles};
   }
 
   ${(props: ButtonProps) => props.isActive && buttonActiveStyles};

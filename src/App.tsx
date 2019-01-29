@@ -46,12 +46,22 @@ const reducer = (state: StateType, action: ActionType) => {
   return state;
 };
 
+const persistedFiltersString = localStorage.getItem('filters');
+
+const initialState = {
+  filters: persistedFiltersString ? JSON.parse(persistedFiltersString) : []
+};
+
 const App = () => {
-  const [vehicle, setVehicle] = useState(null);
   const position = useLocation();
-  const [state, dispatch] = useReducer(reducer, { filters: [] });
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() =>
+    localStorage.setItem('filters', JSON.stringify(state.filters))
+  );
 
   // const position = { latitude: 60.164829, longitude: 24.93425 };
+
   return (
     <ApolloProvider client={client}>
       <Vehicles dispatch={dispatch} activeFilters={state.filters} />

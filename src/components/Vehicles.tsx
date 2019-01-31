@@ -122,6 +122,7 @@ const Vehicles: React.SFC<VehicleProps> = ({ dispatch, activeFilters }) => (
             <Button
               key={val}
               type="button"
+              aria-label={`Filter by ${val}`}
               color={colors[val]}
               isActive={isActive}
               onClick={() => {

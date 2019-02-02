@@ -15,8 +15,8 @@ export const useLocation = () => {
     }) => setPosition({ latitude, longitude });
     const err = (err: any) => console.error(err);
     const options = {
-      maximumAge: 60 * 1000,
-      timeout: 10 * 1000
+      // maximumAge: 60 * 1000,
+      // timeout: 30 * 1000
     };
 
     navigator.geolocation.getCurrentPosition(success, err, options);

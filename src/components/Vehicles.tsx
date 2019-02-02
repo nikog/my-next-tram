@@ -38,17 +38,24 @@ const Container = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   flex-flow: row;
+  overflow: hidden;
+
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
+  border-radius: 4px;
 `;
 
 const buttonActiveStyles = css`
-  background: ${(props: ButtonProps) => darken(0.05, props.color)};
-  transform: translateY(3px);
-  box-shadow: inset 0 3px 0 0
-    ${(props: ButtonProps) => darken(0.25, props.color)} !important;
+  background: ${(props: ButtonProps) => props.color};
+
+  svg {
+    fill: white;
+  }
 `;
 
 const Button = styled.button`
-  background: ${(props: ButtonProps) => props.color};
+  background: white;
   border: none;
   padding: 0.5rem;
   display: flex;
@@ -57,49 +64,30 @@ const Button = styled.button`
   cursor: pointer;
   position: relative;
 
-  box-shadow: 0 3px 0 0 ${(props: ButtonProps) => darken(0.1, props.color)};
+  position: relative;
+  z-index: 1;
 
   :focus {
     outline: 0;
   }
 
   :hover {
+    background: ${(props: ButtonProps) => darken(0.1, '#fff')};
+
     ${(props: ButtonProps) =>
-      !props.isActive &&
+      props.isActive &&
       css`
-        transform: translateY(-1px);
-      `};
-    background: ${(props: ButtonProps) => lighten(0.05, props.color)};
-    box-shadow: 0 4px 0 0 ${(props: ButtonProps) => darken(0.1, props.color)};
-  }
-
-  :active {
-    ${buttonActiveStyles};
-  }
-
-  ${(props: ButtonProps) => props.isActive && buttonActiveStyles};
-
-  :focus {
-    z-index: 1;
-  }
-
-  :not(:last-child) {
-    border-right: 1px solid rgba(100, 100, 100, 0.3);
-  }
-
-  :first-child {
-    border-radius: 6px 0 0 6px;
-  }
-
-  :last-child {
-    border-radius: 0 6px 6px 0;
+        background: ${(props: ButtonProps) => lighten(0.1, props.color)};
+      `}
   }
 
   svg {
     height: 2rem;
     width: 2rem;
-    fill: white;
+    fill: ${(props: ButtonProps) => props.color};
   }
+
+  ${(props: ButtonProps) => props.isActive && buttonActiveStyles};
 `;
 
 const icons: { [index: string]: React.SFC } = {

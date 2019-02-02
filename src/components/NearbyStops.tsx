@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState, useLayoutEffect, memo } from 'react';
 
 import * as R from 'ramda';
 
 import posed, { PoseGroup } from 'react-pose';
 
 import styled from 'styled-components';
+import GroupedDepartureRow from './GroupedDepartureRow';
+import { getColor } from '../utils/colors';
+import DepartureRow from './DepartureRow';
+import { Node } from '../types';
 
 type ContainerProps = {
   color?: string | null;
@@ -36,44 +40,103 @@ const StyledAnimatedRow = styled(AnimatedRow)`
   background: ${(props: ContainerProps) => props.color};
 `;
 
-type NearbyStopsProps = {
-  loading: boolean;
-  data: { nearest: {} };
-  departures: object[];
-  color?: string;
+const getTime = ({ serviceDay, realtimeDeparture }: any) =>
+  serviceDay + realtimeDeparture;
+
+const filterNoStopTimes = R.reject(
+  R.pipe(
+    R.pathOr([], ['node', 'place', 'stoptimes']),
+    R.length,
+    R.equals(0)
+  )
+);
+
+const distanceDepartureSort = R.sortWith([
+  R.ascend(R.path([0, 'node', 'distance'])),
+  R.ascend(
+    R.pipe(
+      R.path([0, 'node', 'place', 'stoptimes', 0]),
+      getTime
+    )
+  )
+]);
+
+const groupByStopAndPattern = R.pipe(
+  R.groupBy(
+    R.pathOr<string>('unknown', ['node', 'place', 'pattern', 'route', 'id'])
+  ),
+  R.values
+);
+
+const lastPatternColor = R.pipe(
+  R.ifElse(
+    R.isEmpty,
+    R.always(null),
+    R.pipe(
+      R.last,
+      R.pathOr({}, [0, 'node', 'place', 'pattern', 'route']),
+      R.props(['shortName', 'mode']),
+      getColor
+    )
+  )
+);
+
+const renderDepartureRows = R.pipe<object, object, React.ReactElement<any>[]>(
+  R.mapObjIndexed((nodes: Array<{ node: Node }>) => {
+    const key = nodes[0].node.place.pattern.route.id;
+    let component;
+
+    if (nodes.length === 2) {
+      component = <GroupedDepartureRow nodes={nodes} key={key} />;
+    } else {
+      const [
+        {
+          node: { place, distance }
+        }
+      ] = nodes;
+
+      component = <DepartureRow stop={place} distance={distance} key={key} />;
+    }
+
+    return component;
+  }),
+  R.values
+);
+
+type Props = {
+  data: {
+    edges?: Array<{
+      node: Node;
+    }>;
+  };
 };
 
-class NearbyStops extends React.Component<NearbyStopsProps, {}> {
-  state = {
-    key: 'unique'
-  };
+const NearbyStops: React.FunctionComponent<Props> = ({ data }) => {
+  const { edges = [] } = data;
 
-  shouldComponentUpdate(nextProps: NearbyStopsProps) {
-    return nextProps.data.nearest !== this.props.data.nearest;
-  }
+  const departures = R.pipe<any[], any[], any[], any>(
+    filterNoStopTimes,
+    groupByStopAndPattern,
+    distanceDepartureSort
+  )(edges);
 
-  componentDidUpdate(prevProps: NearbyStopsProps) {
-    if (prevProps.data.nearest !== this.props.data.nearest) {
-      this.setState({
-        key: new Date().getTime()
-      });
-    }
-  }
+  const departureRows = renderDepartureRows(departures);
 
-  render() {
-    const { departures, color } = this.props;
-    const { key } = this.state;
+  const color = lastPatternColor(departures);
 
-    return (
-      <Container>
-        <PoseGroup animateOnMount={true} flipMove={false}>
-          <StyledAnimatedRow key={key} color={color}>
-            {departures}
-          </StyledAnimatedRow>
-        </PoseGroup>
-      </Container>
-    );
-  }
-}
+  return (
+    <Container>
+      <PoseGroup animateOnMount={true} flipMove={false}>
+        <StyledAnimatedRow key={Date.now()} color={color}>
+          {departureRows}
+        </StyledAnimatedRow>
+      </PoseGroup>
+    </Container>
+  );
+};
 
-export default NearbyStops;
+NearbyStops.defaultProps = {
+  data: {}
+};
+
+export default memo(NearbyStops);

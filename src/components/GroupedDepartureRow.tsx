@@ -61,37 +61,30 @@ const PageIndicator = styled.div`
   }
 `;
 
-type GroupedDepartureRowProps = {
+type Props = {
   nodes: Array<{ node: Node }>;
 };
 
-const GroupedDepartureRow: React.SFC<GroupedDepartureRowProps> = ({
-  nodes
-}) => {
+const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
   const [{ node: firstNode }, { node: secondNode }] = nodes;
   const firstNodeRef = useRef<HTMLElement>(null);
   const secondNodeRef = useRef<HTMLElement>(null);
+  const pageRefs = [firstNodeRef, secondNodeRef];
 
-  const [entries, containerRef] = useIntersection(
-    [firstNodeRef, secondNodeRef],
-    {
-      threshold: 0.5
-    }
+  const [entries, containerRef] = useIntersection(pageRefs, { threshold: 1 });
+
+  const activeEntry = R.pathOr(null, [0, 'target'], entries);
+  const activeIndex = R.findIndex<React.RefObject<HTMLElement>>(
+    R.propEq('current', activeEntry),
+    pageRefs
   );
 
   return (
     <Container>
       <PageIndicatorList>
-        {R.addIndex<{}, any>(R.map)((node, key) => {
-          const entry = entries[key];
-
-          return (
-            <PageIndicator
-              key={key}
-              active={entry ? entry.isIntersecting : false}
-            />
-          );
-        })(nodes)}
+        {R.addIndex<{}, any>(R.map)((node, key) => (
+          <PageIndicator key={key} active={key === activeIndex} />
+        ))(nodes)}
       </PageIndicatorList>
       <Group ref={containerRef}>
         <DepartureRow

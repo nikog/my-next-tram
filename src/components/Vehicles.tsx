@@ -90,14 +90,17 @@ const Button = styled.button`
   ${(props: ButtonProps) => props.isActive && buttonActiveStyles};
 `;
 
-const icons: { [index: string]: React.SFC } = {
+const icons: { [index: string]: React.FunctionComponent } = {
   RAIL: RailIcon,
   TRAM: TramIcon,
   BUS: BusIcon,
   SUBWAY: SubwayIcon
 };
 
-const Vehicles: React.SFC<VehicleProps> = ({ dispatch, activeFilters }) => (
+const Vehicles: React.FunctionComponent<VehicleProps> = ({
+  dispatch,
+  activeFilters
+}) => (
   <Container>
     <ButtonContainer>
       {R.pipe(

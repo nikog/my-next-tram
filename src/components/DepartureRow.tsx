@@ -2,10 +2,11 @@ import React from 'react';
 import { DepartureRow as DepartureRowType, Route, vehicleMode } from '../types';
 import { lineColors, colors } from '../utils/colors';
 import styled, { AnyStyledComponent } from 'styled-components';
+import { differenceInMinutes } from 'date-fns';
 
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
 
-type StopsProps = {
+type Props = {
   stop: DepartureRowType;
   distance: number;
   ref?: React.Ref<HTMLElement> | null;
@@ -55,10 +56,20 @@ const RouteNameCircled = styled.h3`
 `;
 
 const DepartureTime = styled.p`
-  font-size: 1.5rem;
+  font-size: 2rem;
+  line-height: 1.2;
   font-weight: 500;
   margin-left: auto;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+`;
+
+const Units = styled.span`
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 300;
 `;
 
 const Destination = styled.p`
@@ -82,7 +93,7 @@ const Stopname = styled.p`
   font-weight: 300;
 `;
 
-const DepartureRow: React.SFC<StopsProps> = ({
+const DepartureRow: React.FunctionComponent<Props> = ({
   distance,
   stop: {
     stop: { name },
@@ -98,15 +109,24 @@ const DepartureRow: React.SFC<StopsProps> = ({
     return null;
   }
 
-  const { headsign: longHeadsign, realtimeDeparture, realtime } = stoptimes[0];
+  const {
+    headsign: longHeadsign,
+    serviceDay,
+    realtimeDeparture,
+    realtime
+  } = stoptimes[0];
 
-  var t = new Date(1970, 0, 1); // Epoch
-  t.setSeconds(realtimeDeparture);
-  const time = t.toLocaleTimeString('en-GB', {
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  const departureTime = new Date((serviceDay + realtimeDeparture) * 1000);
+  const currentTime = Date.now();
+  const timeDiffToNow = differenceInMinutes(departureTime, currentTime);
+
+  // var t = new Date(1970, 0, 1); // Epoch
+  // t.setSeconds(realtimeDeparture);
+  // const time = t.toLocaleTimeString('en-GB', {
+  //   hour12: false,
+  //   hour: '2-digit',
+  //   minute: '2-digit'
+  // });
 
   const lineColor = lineColors[parseInt(shortName, 10)] || colors[mode];
 
@@ -129,15 +149,15 @@ const DepartureRow: React.SFC<StopsProps> = ({
         </Stopname>
       </RouteInfo>
       <DepartureTime>
-        {!realtime && '~'}
-        {time}
+        {timeDiffToNow}
+        <Units> minutes</Units>
       </DepartureTime>
     </StyledDepartureRow>
   );
 };
 
-const DepartureRowWithRefForward: React.ComponentType<
-  StopsProps
-> = React.forwardRef((props, ref) => <DepartureRow rowRef={ref} {...props} />);
+const DepartureRowWithRefForward: React.ComponentType<Props> = React.forwardRef(
+  (props, ref) => <DepartureRow rowRef={ref} {...props} />
+);
 
 export default DepartureRowWithRefForward;

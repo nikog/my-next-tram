@@ -56,3 +56,11 @@ export const useIntersection = (
 
   return [entries, containerRef];
 };
+
+export const useInterval = (callback: Function, time: number) => {
+  useEffect(() => {
+    const interval = setInterval(callback, time);
+
+    return () => clearInterval(interval);
+  });
+};

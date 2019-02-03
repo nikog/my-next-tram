@@ -35,12 +35,9 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({
     <NearbyStopsQuery
       query={getNearbyStops}
       variables={{ transportMode, latitude, longitude }}
+      pollInterval={30 * 1000}
     >
       {({ loading, error, data }) => {
-        // if (loading && R.empty(data)) {
-        //   return <p>Loading</p>;
-        // }
-
         if (error) {
           return <p>Error</p>;
         }
@@ -49,7 +46,13 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({
           return <p>no data</p>;
         }
 
-        return <NearbyStops data={data.nearest} />;
+        return (
+          <NearbyStops
+            data={data.nearest}
+            transportMode={transportMode}
+            loading={loading}
+          />
+        );
       }}
     </NearbyStopsQuery>
   );

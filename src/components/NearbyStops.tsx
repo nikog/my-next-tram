@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import GroupedDepartureRow from './GroupedDepartureRow';
 import { getColor } from '../utils/colors';
 import DepartureRow from './DepartureRow';
-import { Node } from '../types';
+import { Node, vehicleMode } from '../types';
 
 type ContainerProps = {
   color?: string | null;
@@ -104,6 +104,8 @@ const renderDepartureRows = R.pipe<object, object, React.ReactElement<any>[]>(
 );
 
 type Props = {
+  loading?: boolean;
+  transportMode?: vehicleMode[];
   data: {
     edges?: Array<{
       node: Node;
@@ -111,7 +113,11 @@ type Props = {
   };
 };
 
-const NearbyStops: React.FunctionComponent<Props> = ({ data }) => {
+const NearbyStops: React.FunctionComponent<Props> = ({
+  data,
+  transportMode,
+  loading
+}) => {
   const { edges = [] } = data;
 
   const departures = R.pipe<any[], any[], any[], any>(
@@ -127,8 +133,8 @@ const NearbyStops: React.FunctionComponent<Props> = ({ data }) => {
   return (
     <Container>
       <PoseGroup animateOnMount={true} flipMove={false}>
-        <StyledAnimatedRow key={Date.now()} color={color}>
-          {departureRows}
+        <StyledAnimatedRow key={JSON.stringify(transportMode)} color={color}>
+          {!loading && departureRows}
         </StyledAnimatedRow>
       </PoseGroup>
     </Container>

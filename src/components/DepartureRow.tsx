@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DepartureRow as DepartureRowType, Route, vehicleMode } from '../types';
 import { lineColors, colors } from '../utils/colors';
 import styled, { AnyStyledComponent } from 'styled-components';
 import { differenceInMinutes } from 'date-fns';
 
+import { ReactComponent as RealtimeIcon } from '../icons/realtime.svg';
+
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
+import { useInterval } from '../utils/hooks';
 
 type Props = {
   stop: DepartureRowType;
@@ -55,15 +58,19 @@ const RouteNameCircled = styled.h3`
   margin-bottom: 0.25rem;
 `;
 
-const DepartureTime = styled.p`
-  font-size: 2rem;
-  line-height: 1.2;
-  font-weight: 500;
+const DepartureTimeContainer = styled.div`
   margin-left: auto;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-flow: column;
   align-items: center;
+`;
+
+const Time = styled.p`
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
 `;
 
 const Units = styled.span`
@@ -93,6 +100,20 @@ const Stopname = styled.p`
   font-weight: 300;
 `;
 
+const StyledRealtimeIcon = styled(RealtimeIcon)`
+  position: absolute;
+  right: -1rem;
+  top: -0.25rem;
+  width: 1rem;
+  height: 1rem;
+
+  path {
+    fill: white;
+  }
+
+  transform: rotate(45deg);
+`;
+
 const DepartureRow: React.FunctionComponent<Props> = ({
   distance,
   stop: {
@@ -108,6 +129,9 @@ const DepartureRow: React.FunctionComponent<Props> = ({
   if (!stoptimes.length) {
     return null;
   }
+
+  const [, toggle] = useState<boolean>(false);
+  useInterval(() => toggle(state => !state), 10 * 1000);
 
   const {
     headsign: longHeadsign,
@@ -148,10 +172,13 @@ const DepartureRow: React.FunctionComponent<Props> = ({
           {name} ({distance}m)
         </Stopname>
       </RouteInfo>
-      <DepartureTime>
-        {timeDiffToNow}
+      <DepartureTimeContainer>
+        <Time>
+          {timeDiffToNow}
+          {realtime && <StyledRealtimeIcon />}
+        </Time>
         <Units> minutes</Units>
-      </DepartureTime>
+      </DepartureTimeContainer>
     </StyledDepartureRow>
   );
 };

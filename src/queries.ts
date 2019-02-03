@@ -26,6 +26,7 @@ export const getNearbyStops = gql`
               pattern {
                 id
                 headsign
+                directionId
 
                 route {
                   id
@@ -39,10 +40,6 @@ export const getNearbyStops = gql`
                 realtimeDeparture
                 realtime
                 headsign
-
-                trip {
-                  directionId
-                }
               }
             }
           }

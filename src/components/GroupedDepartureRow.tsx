@@ -61,6 +61,19 @@ const PageIndicator = styled.div`
   }
 `;
 
+const getTime = ({ serviceDay, realtimeDeparture }: any) =>
+  serviceDay + realtimeDeparture;
+
+const distanceDepartureSort = R.sortWith([
+  R.ascend(R.path(['node', 'distance'])),
+  R.ascend(
+    R.pipe(
+      R.path(['node', 'place', 'stoptimes', 0]),
+      getTime
+    )
+  )
+]);
+
 type Props = {
   nodes: Array<{ node: Node }>;
 };
@@ -73,9 +86,23 @@ const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
 
   const [entries, containerRef] = useIntersection(pageRefs, { threshold: 1 });
 
-  const activeEntry = R.pathOr(null, [0, 'target'], entries);
+  useEffect(() => {
+    const activeIndex = R.pipe(
+      distanceDepartureSort,
+      R.pathOr(0, [0, 'node', 'place', 'pattern', 'directionId'])
+    )(nodes);
+
+    if (activeIndex >= 0) {
+      const activeRef = pageRefs[activeIndex];
+      if (activeRef && activeRef.current) {
+        activeRef.current.scrollIntoView();
+      }
+    }
+  }, []);
+
+  const activeEntry = R.find(R.propEq('isIntersecting', true), entries);
   const activeIndex = R.findIndex<React.RefObject<HTMLElement>>(
-    R.propEq('current', activeEntry),
+    R.propEq('current', R.propOr(null, 'target', activeEntry)),
     pageRefs
   );
 

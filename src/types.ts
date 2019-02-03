@@ -15,13 +15,16 @@ export enum PickupType {
   NONE = 'NONE'
 }
 
+export type Pattern = {
+  directionId: number;
+  headsign: string;
+  route: Route;
+};
+
 export type DepartureRow = {
   stop: Stop;
   stoptimes: Array<StopTime>;
-  pattern: {
-    headsign: string;
-    route: Route;
-  };
+  pattern: Pattern;
 };
 
 export type Stop = {

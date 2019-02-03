@@ -52,13 +52,13 @@ const filterNoStopTimes = R.reject(
 );
 
 const distanceDepartureSort = R.sortWith([
-  R.ascend(R.path([0, 'node', 'distance'])),
-  R.ascend(
-    R.pipe(
-      R.path([0, 'node', 'place', 'stoptimes', 0]),
-      getTime
-    )
-  )
+  R.ascend(R.path([0, 'node', 'distance']))
+  // R.ascend(
+  //   R.pipe(
+  //     R.path([0, 'node', 'place', 'stoptimes', 0]),
+  //     getTime
+  //   )
+  // )
 ]);
 
 const groupByStopAndPattern = R.pipe(
@@ -66,6 +66,14 @@ const groupByStopAndPattern = R.pipe(
     R.pathOr<string>('unknown', ['node', 'place', 'pattern', 'route', 'id'])
   ),
   R.values
+);
+
+const sortGroupByDirection = R.map(
+  R.sortWith([
+    R.ascend(
+      R.pathOr<string>('unknown', ['node', 'place', 'pattern', 'directionId'])
+    )
+  ])
 );
 
 const lastPatternColor = R.pipe(
@@ -120,10 +128,11 @@ const NearbyStops: React.FunctionComponent<Props> = ({
 }) => {
   const { edges = [] } = data;
 
-  const departures = R.pipe<any[], any[], any[], any>(
+  const departures = R.pipe<any[], any[], any[], any[], any>(
     filterNoStopTimes,
     groupByStopAndPattern,
-    distanceDepartureSort
+    distanceDepartureSort,
+    sortGroupByDirection
   )(edges);
 
   const departureRows = renderDepartureRows(departures);

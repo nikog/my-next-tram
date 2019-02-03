@@ -53,14 +53,14 @@ const initialState = {
 };
 
 const App = () => {
-  const position = useLocation();
+  // const position = useLocation();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() =>
     localStorage.setItem('filters', JSON.stringify(state.filters))
   );
 
-  // const position = { latitude: 60.164829, longitude: 24.93425 };
+  const position = { latitude: 60.164829, longitude: 24.93425 };
 
   return (
     <ApolloProvider client={client}>

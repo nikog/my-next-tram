@@ -130,8 +130,8 @@ const DepartureRow: React.FunctionComponent<Props> = ({
     return null;
   }
 
-  const [, toggle] = useState<boolean>(false);
-  useInterval(() => toggle(state => !state), 10 * 1000);
+  // const [, toggle] = useState<boolean>(false);
+  // useInterval(() => toggle(state => !state), 10 * 1000);
 
   const {
     headsign: longHeadsign,

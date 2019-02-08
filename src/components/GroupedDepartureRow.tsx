@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import styled, { AnyStyledComponent } from 'styled-components';
 
 import * as R from 'ramda';
@@ -84,23 +84,25 @@ const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
   const secondNodeRef = useRef<HTMLElement>(null);
   const pageRefs = [firstNodeRef, secondNodeRef];
 
-  const [entries, containerRef] = useIntersection(pageRefs, { threshold: 1 });
+  const [entries, containerRef] = useIntersection(pageRefs, { threshold: 0.6 });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const activeIndex = R.pipe(
       distanceDepartureSort,
       R.pathOr(0, [0, 'node', 'place', 'pattern', 'directionId'])
     )(nodes);
 
-    if (activeIndex >= 0) {
-      const activeRef = pageRefs[activeIndex];
-      if (activeRef && activeRef.current) {
-        activeRef.current.scrollIntoView();
-      }
+    if (activeIndex && containerRef && containerRef.current) {
+      containerRef.current.scrollLeft = 9999;
     }
   }, []);
 
-  const activeEntry = R.find(R.propEq('isIntersecting', true), entries);
+  const activeEntry = R.ifElse(
+    ({ length }) => length > 1,
+    R.find(R.propEq('isIntersecting', true)),
+    R.prop('0')
+  )(entries);
+
   const activeIndex = R.findIndex<React.RefObject<HTMLElement>>(
     R.propEq('current', R.propOr(null, 'target', activeEntry)),
     pageRefs

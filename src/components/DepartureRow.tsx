@@ -4,17 +4,19 @@ import { lineColors, colors } from '../utils/colors';
 import styled, { AnyStyledComponent } from 'styled-components';
 import { differenceInMinutes } from 'date-fns';
 
+import * as R from 'ramda';
+
 import { ReactComponent as RealtimeIcon } from '../icons/realtime.svg';
 
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
 import { useInterval } from '../utils/hooks';
-
-type Props = {
-  stop: DepartureRowType;
-  distance: number;
-  ref?: React.Ref<HTMLElement> | null;
-  rowRef?: React.Ref<HTMLElement> | null;
-};
+import {
+  NearbyStops_nearest_edges_node_place_DepartureRow,
+  NearbyStops_nearest_edges_node_place_DepartureRow_stop,
+  NearbyStops_nearest_edges_node_place_DepartureRow_stoptimes,
+  NearbyStops_nearest_edges_node
+} from '../types/NearbyStops';
+import { Mode } from '../types/globalTypes';
 
 type StyledDepartureRowProps = {
   lineColor: string;
@@ -114,62 +116,41 @@ const StyledRealtimeIcon = styled(RealtimeIcon)`
   transform: rotate(45deg);
 `;
 
-const DepartureRow: React.FunctionComponent<Props> = ({
-  distance,
-  stop: {
-    stop: { name },
-    pattern: {
-      headsign,
-      route: { mode, shortName }
-    },
-    stoptimes
-  },
-  rowRef
-}) => {
-  if (!stoptimes.length) {
-    return null;
-  }
+type Props = {
+  data: NearbyStops_nearest_edges_node;
+  ref?: React.Ref<HTMLElement> | null;
+  rowRef?: React.Ref<HTMLElement> | null;
+};
 
-  // const [, toggle] = useState<boolean>(false);
-  // useInterval(() => toggle(state => !state), 10 * 1000);
+const DepartureRow: React.FunctionComponent<Props> = ({ data, rowRef }) => {
+  const place = R.propOr({}, 'place', data);
+  const distance = R.prop('distance', data);
+  const stopName = R.pathOr('', ['stop', 'name'], place);
+  const headsign = R.path(['pattern', 'headsign'], place);
+  const shortName = R.pathOr('', ['pattern', 'route', 'shortName'], place);
+  const mode = R.pathOr(null, ['pattern', 'route', 'mode'], place);
+  const lineColor = R.prop(parseInt(shortName, 10), lineColors) || colors[mode];
+  const departureTime = R.pipe(
+    R.pathOr({}, ['stoptimes', 0]),
+    R.props<string, number>(['serviceDay', 'realtimeDeparture']),
+    R.sum,
+    R.multiply(1000)
+  )(place);
+  const realtime = R.pathOr(false, ['stoptimes', 0, 'realtime'], place);
 
-  const {
-    headsign: longHeadsign,
-    serviceDay,
-    realtimeDeparture,
-    realtime
-  } = stoptimes[0];
-
-  const departureTime = new Date((serviceDay + realtimeDeparture) * 1000);
   const currentTime = Date.now();
   const timeDiffToNow = differenceInMinutes(departureTime, currentTime);
-
-  // var t = new Date(1970, 0, 1); // Epoch
-  // t.setSeconds(realtimeDeparture);
-  // const time = t.toLocaleTimeString('en-GB', {
-  //   hour12: false,
-  //   hour: '2-digit',
-  //   minute: '2-digit'
-  // });
-
-  const lineColor = lineColors[parseInt(shortName, 10)] || colors[mode];
 
   return (
     <StyledDepartureRow lineColor={lineColor} ref={rowRef}>
       <RouteInfo>
-        {/* {mode !== vehicleMode.BUS ? (
-            <RouteNameCircled lineColor={lineColor}>
-              {shortName}
-            </RouteNameCircled>
-          ) : ( */}
         <RouteName>{shortName}</RouteName>
-        {/* )} */}
         <Destination>
           <StyledSvgIcon />
-          {mode === vehicleMode.RAIL ? longHeadsign : headsign}
+          {headsign}
         </Destination>
         <Stopname>
-          {name} ({distance}m)
+          {stopName} ({distance}m)
         </Stopname>
       </RouteInfo>
       <DepartureTimeContainer>

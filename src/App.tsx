@@ -1,28 +1,28 @@
 import React, { useState, useEffect, useReducer } from 'react';
 
 import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider } from 'react-apollo-hooks';
 
 import Vehicles from './components/Vehicles';
 import NearbyStops from './components/NearbyStopsContainer';
-import { vehicleMode } from './types';
 
 import { useLocation } from './utils/hooks';
 
 import './reset.css';
 import './style.css';
+import { Mode } from './types/globalTypes';
 
 const client = new ApolloClient({
   uri: 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
 });
 
 type StateType = {
-  filters: vehicleMode[];
+  filters: Mode[];
 };
 
 type ActionType = {
   type: 'addFilter' | 'removeFilter';
-  payload: vehicleMode;
+  payload: Mode;
 };
 
 const reducer = (state: StateType, action: ActionType) => {
@@ -53,14 +53,14 @@ const initialState = {
 };
 
 const App = () => {
-  // const position = useLocation();
+  const position = useLocation();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() =>
     localStorage.setItem('filters', JSON.stringify(state.filters))
   );
 
-  const position = { latitude: 60.164829, longitude: 24.93425 };
+  // const position = { latitude: 60.164829, longitude: 24.93425 };
 
   return (
     <ApolloProvider client={client}>

@@ -1,25 +1,16 @@
 import React from 'react';
-import { Query } from 'react-apollo';
 
 import * as R from 'ramda';
 
 import { getNearbyStops } from '../queries';
-import {
-  GetNearbyStopsQuery,
-  GetNearbyStopsVariables,
-  vehicleMode,
-  Position
-} from '../types';
 
 import NearbyStops from './NearbyStops';
-
-class NearbyStopsQuery extends Query<
-  GetNearbyStopsQuery,
-  GetNearbyStopsVariables
-> {}
+import { useQuery } from 'react-apollo-hooks';
+import { Mode } from '../types/globalTypes';
+import { Position } from '../types';
 
 type Props = {
-  vehicleModeFilters: vehicleMode[];
+  vehicleModeFilters: Mode[];
   position: Position;
 };
 
@@ -29,32 +20,32 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({
 }) => {
   const transportMode = vehicleModeFilters.length
     ? vehicleModeFilters
-    : R.values(vehicleMode);
+    : R.values(Mode);
+
+  const { data, loading, error } = useQuery(getNearbyStops, {
+    variables: {
+      transportMode,
+      latitude,
+      longitude
+    },
+    pollInterval: 30 * 1000,
+    suspend: false
+  });
+
+  if (error) {
+    return <p>Error</p>;
+  }
+
+  if (!data) {
+    return <p>no data</p>;
+  }
 
   return (
-    <NearbyStopsQuery
-      query={getNearbyStops}
-      variables={{ transportMode, latitude, longitude }}
-      pollInterval={30 * 1000}
-    >
-      {({ loading, error, data }) => {
-        if (error) {
-          return <p>Error</p>;
-        }
-
-        if (!data) {
-          return <p>no data</p>;
-        }
-
-        return (
-          <NearbyStops
-            data={data.nearest}
-            transportMode={transportMode}
-            loading={loading}
-          />
-        );
-      }}
-    </NearbyStopsQuery>
+    <NearbyStops
+      data={data.nearest}
+      transportMode={transportMode}
+      loading={loading}
+    />
   );
 };
 

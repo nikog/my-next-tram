@@ -13,10 +13,11 @@ import { ReactComponent as SubwayIcon } from '../icons/subway.svg';
 import { ReactComponent as BusIcon } from '../icons/bus.svg';
 
 import { colors } from '../utils/colors';
+import { Mode } from '../types/globalTypes';
 
 interface VehicleProps {
   dispatch: Function;
-  activeFilters: vehicleMode[];
+  activeFilters: Mode[];
 }
 
 type ButtonProps = {
@@ -104,7 +105,7 @@ const Vehicles: React.FunctionComponent<VehicleProps> = ({
   <Container>
     <ButtonContainer>
       {R.pipe(
-        R.mapObjIndexed((val: vehicleMode) => {
+        R.mapObjIndexed((val: Mode) => {
           const Icon = icons[val];
 
           const isActive = activeFilters.includes(val);

@@ -8,6 +8,10 @@ import DepartureRow from './DepartureRow';
 import { Node } from '../types';
 
 import { useIntersection } from '../utils/hooks';
+import {
+  NearbyStops_nearest_edges,
+  NearbyStops_nearest_edges_node
+} from '../types/NearbyStops';
 
 const Container = styled.div`
   position: relative;
@@ -75,7 +79,7 @@ const distanceDepartureSort = R.sortWith([
 ]);
 
 type Props = {
-  nodes: Array<{ node: Node }>;
+  nodes: NearbyStops_nearest_edges[];
 };
 
 const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
@@ -116,16 +120,10 @@ const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
         ))(nodes)}
       </PageIndicatorList>
       <Group ref={containerRef}>
-        <DepartureRow
-          stop={firstNode.place}
-          distance={firstNode.distance}
-          ref={firstNodeRef}
-        />
-        <DepartureRow
-          stop={secondNode.place}
-          distance={secondNode.distance}
-          ref={secondNodeRef}
-        />
+        {R.addIndex<NearbyStops_nearest_edges, any>(R.map)(
+          ({ node }, key) =>
+            node && <DepartureRow key={key} data={node} ref={pageRefs[key]} />
+        )(nodes)}
       </Group>
     </Container>
   );

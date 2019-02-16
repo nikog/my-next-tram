@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, memo } from 'react';
+import React, { memo } from 'react';
 
 import * as R from 'ramda';
 

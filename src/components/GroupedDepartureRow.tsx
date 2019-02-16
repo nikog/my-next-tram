@@ -1,17 +1,12 @@
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import styled, { AnyStyledComponent } from 'styled-components';
 
 import * as R from 'ramda';
 
 import DepartureRow from './DepartureRow';
 
-import { Node } from '../types';
-
 import { useIntersection } from '../utils/hooks';
-import {
-  NearbyStops_nearest_edges,
-  NearbyStops_nearest_edges_node
-} from '../types/NearbyStops';
+import { NearbyStops_nearest_edges } from '../types/NearbyStops';
 
 const Container = styled.div`
   position: relative;
@@ -83,7 +78,6 @@ type Props = {
 };
 
 const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
-  const [{ node: firstNode }, { node: secondNode }] = nodes;
   const firstNodeRef = useRef<HTMLElement>(null);
   const secondNodeRef = useRef<HTMLElement>(null);
   const pageRefs = [firstNodeRef, secondNodeRef];

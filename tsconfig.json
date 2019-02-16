@@ -14,7 +14,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "strictFunctionTypes": false
+    "strictFunctionTypes": false,
+    "noUnusedLocals": true
   },
   "include": ["src"]
 }

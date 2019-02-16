@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { DepartureRow as DepartureRowType, Route, vehicleMode } from '../types';
+import React from 'react';
 import { lineColors, colors } from '../utils/colors';
 import styled, { AnyStyledComponent } from 'styled-components';
 import { differenceInMinutes } from 'date-fns';
@@ -9,14 +8,7 @@ import * as R from 'ramda';
 import { ReactComponent as RealtimeIcon } from '../icons/realtime.svg';
 
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
-import { useInterval } from '../utils/hooks';
-import {
-  NearbyStops_nearest_edges_node_place_DepartureRow,
-  NearbyStops_nearest_edges_node_place_DepartureRow_stop,
-  NearbyStops_nearest_edges_node_place_DepartureRow_stoptimes,
-  NearbyStops_nearest_edges_node
-} from '../types/NearbyStops';
-import { Mode } from '../types/globalTypes';
+import { NearbyStops_nearest_edges_node } from '../types/NearbyStops';
 
 type StyledDepartureRowProps = {
   lineColor: string;
@@ -42,22 +34,6 @@ const RouteName = styled.h3`
   font-weight: 700;
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-`;
-
-const RouteNameCircled = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 700;
-  background: white;
-  border-radius: 50%;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  color: ${(props: StyledDepartureRowProps) => props.lineColor};
-
-  margin-bottom: 0.25rem;
 `;
 
 const DepartureTimeContainer = styled.div`

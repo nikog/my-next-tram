@@ -55,24 +55,18 @@ const filterNoStopTimes = R.reject(
   )
 );
 
-const distanceDepartureSort = R.sortWith([
-  R.ascend(R.path([0, 'node', 'distance']))
-]);
+const distanceSort = R.sortBy(R.pathOr(0, [0, 'node', 'distance']));
+const groupDirectionSort = R.map(
+  R.sortBy(R.pathOr(0, ['node', 'place', 'pattern', 'directionId']))
+);
 
-const groupByStopAndPattern = R.pipe(
-  R.groupBy(R.pathOr<string>('', ['node', 'place', 'pattern', 'route', 'id'])),
+const groupByRoute = R.pipe(
+  R.groupBy(R.pathOr('', ['node', 'place', 'pattern', 'route', 'id'])),
   R.values
 );
 
-const sortGroupByDirection = R.map(
-  R.sortWith([
-    R.ascend(R.pathOr<string>('', ['node', 'place', 'pattern', 'directionId']))
-  ])
-);
-
 const lastPatternColor = R.pipe(
-  R.defaultTo([]),
-  R.last,
+  (arr: any[]) => R.last(arr),
   R.pathOr({}, [0, 'node', 'place', 'pattern', 'route']),
   R.props(['shortName', 'mode']),
   getColor
@@ -80,10 +74,7 @@ const lastPatternColor = R.pipe(
 
 const renderDepartureRows = R.map(
   R.ifElse(
-    R.pipe(
-      R.length,
-      R.gte(R.__, 2)
-    ),
+    R.propSatisfies(R.gt(R.__, 1), 'length'),
     (nodes: GroupedEdges) => (
       <GroupedDepartureRow
         nodes={nodes}
@@ -91,9 +82,9 @@ const renderDepartureRows = R.map(
       />
     ),
     R.pipe(
-      R.path<any>(['0', 'node']),
+      R.path([0, 'node']),
       (node: NearbyStops_nearest_edges_node) => (
-        <DepartureRow data={node} key={node.id} />
+        <DepartureRow data={node} key={node && node.id} />
       )
     )
   )
@@ -102,9 +93,9 @@ const renderDepartureRows = R.map(
 const groupAndFilterDepartures = R.pipe(
   R.propOr([], 'edges'),
   filterNoStopTimes,
-  groupByStopAndPattern,
-  distanceDepartureSort,
-  sortGroupByDirection
+  groupByRoute,
+  distanceSort,
+  groupDirectionSort
 );
 
 type Props = {

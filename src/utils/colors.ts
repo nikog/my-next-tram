@@ -1,13 +1,10 @@
-import { vehicleMode } from '../types';
-import { string } from 'prop-types';
-
 const colors: { [index: string]: string } = {
   BUS: '#007AC9',
   TRAM: '#00985F',
   SUBWAY: '#ff6319',
-  RAIL: '#8c4799'
-  // FERRY: '#00b9e4',
-  // BIKE: '#fcb919'
+  RAIL: '#8c4799',
+  FERRY: '#00b9e4',
+  BIKE: '#fcb919'
 };
 
 const lineColors: { [index: number]: string } = {

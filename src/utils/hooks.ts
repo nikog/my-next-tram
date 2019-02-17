@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
-
-import * as R from 'ramda';
+import { useState, useEffect } from 'react';
 
 import { Position } from '../types';
 
@@ -25,42 +23,22 @@ export const useLocation = () => {
   return position;
 };
 
-export const useIntersection = (
-  targets: React.RefObject<HTMLElement>[],
-  options: object
-): [IntersectionObserverEntry[], React.RefObject<HTMLElement>] => {
-  const [entries, setEntries] = useState<IntersectionObserverEntry[]>([]);
-  const containerRef = useRef<HTMLElement>(null);
-
-  const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-    setEntries(entries);
-  };
-
-  useEffect(
-    () => {
-      const observer = new IntersectionObserver(handleIntersection, {
-        root: containerRef.current,
-        ...options
-      });
-
-      R.map((target: React.RefObject<HTMLElement>) => {
-        if (target && target.current) {
-          observer.observe(target.current);
-        }
-      })(targets);
-
-      return () => observer.disconnect();
-    },
-    [containerRef]
-  );
-
-  return [entries, containerRef];
-};
-
-export const useInterval = (callback: Function, time: number) => {
+export const useOnMinuteInterval = (callback: Function, time: number) => {
   useEffect(() => {
-    const interval = setInterval(callback, time);
+    let timeout: NodeJS.Timeout, interval: number;
+    const seconds = Math.ceil((time / 1000) % 60);
+    const minutes = Math.ceil((time / 1000 / 60) % 60);
 
-    return () => clearInterval(interval);
-  });
+    if (minutes > 1) {
+      timeout = setTimeout(() => {
+        callback();
+        interval = setInterval(callback, 60 * 1000);
+      }, seconds * 1000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, [time]);
 };

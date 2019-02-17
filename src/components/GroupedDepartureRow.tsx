@@ -5,7 +5,7 @@ import * as R from 'ramda';
 
 import DepartureRow from './DepartureRow';
 
-import { useIntersection } from '../utils/hooks';
+import useIntersection from '../utils/useIntersection';
 import { NearbyStops_nearest_edges } from '../types/NearbyStops';
 
 const Container = styled.div`
@@ -60,64 +60,43 @@ const PageIndicator = styled.div`
   }
 `;
 
-const getTime = ({ serviceDay, realtimeDeparture }: any) =>
-  serviceDay + realtimeDeparture;
-
-const distanceDepartureSort = R.sortWith([
-  R.ascend(R.path(['node', 'distance'])),
-  R.ascend(
-    R.pipe(
-      R.path(['node', 'place', 'stoptimes', 0]),
-      getTime
-    )
-  )
-]);
+const nearestNodeDirectionId = R.pipe(
+  R.sortBy(R.pathOr(0, ['node', 'distance'])),
+  R.pathOr(0, [0, 'node', 'place', 'pattern', 'directionId'])
+);
 
 type Props = {
   nodes: NearbyStops_nearest_edges[];
 };
 
 const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
-  const firstNodeRef = useRef<HTMLElement>(null);
-  const secondNodeRef = useRef<HTMLElement>(null);
-  const pageRefs = [firstNodeRef, secondNodeRef];
-
-  const [entries, containerRef] = useIntersection(pageRefs, { threshold: 0.6 });
+  const containerRef = useRef<HTMLElement>(null);
+  const pageRefs = [useRef<HTMLElement>(null), useRef<HTMLElement>(null)];
 
   useLayoutEffect(() => {
-    const activeIndex = R.pipe(
-      distanceDepartureSort,
-      R.pathOr(0, [0, 'node', 'place', 'pattern', 'directionId'])
-    )(nodes);
+    const activeIndex = nearestNodeDirectionId(nodes);
 
     if (activeIndex && containerRef && containerRef.current) {
       containerRef.current.scrollLeft = 9999;
     }
   }, []);
 
-  const activeEntry = R.ifElse(
-    ({ length }) => length > 1,
-    R.find(R.propEq('isIntersecting', true)),
-    R.prop('0')
-  )(entries);
-
-  const activeIndex = R.findIndex<React.RefObject<HTMLElement>>(
-    R.propEq('current', R.propOr(null, 'target', activeEntry)),
-    pageRefs
-  );
+  const activeIndex = useIntersection(pageRefs, containerRef, {
+    threshold: 0.6
+  });
 
   return (
     <Container>
       <PageIndicatorList>
-        {R.addIndex<{}, any>(R.map)((node, key) => (
+        {nodes.map((node, key) => (
           <PageIndicator key={key} active={key === activeIndex} />
-        ))(nodes)}
+        ))}
       </PageIndicatorList>
       <Group ref={containerRef}>
-        {R.addIndex<NearbyStops_nearest_edges, any>(R.map)(
+        {nodes.map(
           ({ node }, key) =>
             node && <DepartureRow key={key} data={node} ref={pageRefs[key]} />
-        )(nodes)}
+        )}
       </Group>
     </Container>
   );

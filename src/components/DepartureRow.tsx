@@ -1,14 +1,15 @@
 import React from 'react';
-import { lineColors, colors } from '../utils/colors';
+import { getColor } from '../utils/colors';
 import styled, { AnyStyledComponent } from 'styled-components';
-import { differenceInMinutes } from 'date-fns';
-
-import * as R from 'ramda';
 
 import { ReactComponent as RealtimeIcon } from '../icons/realtime.svg';
 
 import { ReactComponent as SvgIcon } from '../icons/arrow-alt-circle-light-solid.svg';
-import { NearbyStops_nearest_edges_node } from '../types/NearbyStops';
+import {
+  NearbyStops_nearest_edges_node,
+  NearbyStops_nearest_edges_node_place_DepartureRow
+} from '../types/NearbyStops';
+import Counter from './Counter';
 
 type StyledDepartureRowProps = {
   lineColor: string;
@@ -99,40 +100,35 @@ type Props = {
 };
 
 const DepartureRow: React.FunctionComponent<Props> = ({ data, rowRef }) => {
-  const place = R.propOr({}, 'place', data);
-  const distance = R.prop('distance', data);
-  const stopName = R.pathOr('', ['stop', 'name'], place);
-  const headsign = R.path(['pattern', 'headsign'], place);
-  const shortName = R.pathOr('', ['pattern', 'route', 'shortName'], place);
-  const mode = R.pathOr(null, ['pattern', 'route', 'mode'], place);
-  const lineColor = R.prop(parseInt(shortName, 10), lineColors) || colors[mode];
-  const departureTime = R.pipe(
-    R.pathOr({}, ['stoptimes', 0]),
-    R.props<string, number>(['serviceDay', 'realtimeDeparture']),
-    R.sum,
-    R.multiply(1000)
-  )(place);
-  const realtime = R.pathOr(false, ['stoptimes', 0, 'realtime'], place);
+  const place = data.place as NearbyStops_nearest_edges_node_place_DepartureRow;
+  const distance = data.distance;
 
-  const currentTime = Date.now();
-  const timeDiffToNow = differenceInMinutes(departureTime, currentTime);
+  const stop = place.stop!;
+  const stoptime = place.stoptimes![0]!;
+  const pattern = place.pattern!;
+
+  const route = pattern.route;
+
+  const color = getColor([route.shortName || '', route.mode || '']);
+  const departureTime =
+    (stoptime.serviceDay + stoptime.realtimeDeparture) * 1000;
 
   return (
-    <StyledDepartureRow lineColor={lineColor} ref={rowRef}>
+    <StyledDepartureRow lineColor={color} ref={rowRef}>
       <RouteInfo>
-        <RouteName>{shortName}</RouteName>
+        <RouteName>{route && route.shortName}</RouteName>
         <Destination>
           <StyledSvgIcon />
-          {headsign}
+          {pattern.headsign}
         </Destination>
         <Stopname>
-          {stopName} ({distance}m)
+          {stop.name} ({distance}m)
         </Stopname>
       </RouteInfo>
       <DepartureTimeContainer>
         <Time>
-          {timeDiffToNow}
-          {realtime && <StyledRealtimeIcon />}
+          <Counter departureTime={departureTime} />
+          {stoptime.realtime && <StyledRealtimeIcon />}
         </Time>
         <Units> minutes</Units>
       </DepartureTimeContainer>

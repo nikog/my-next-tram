@@ -1,9 +1,9 @@
 import React from 'react';
-import styled, { css, AnyStyledComponent } from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import * as R from 'ramda';
 
-import { darken, transparentize, lighten } from 'polished';
+import { darken, lighten } from 'polished';
 
 import { vehicleMode } from '../types';
 
@@ -105,7 +105,7 @@ const Vehicles: React.FunctionComponent<VehicleProps> = ({
   <Container>
     <ButtonContainer>
       {R.pipe(
-        R.mapObjIndexed((val: Mode) => {
+        R.map<typeof vehicleMode, any[]>((val: Mode) => {
           const Icon = icons[val];
 
           const isActive = activeFilters.includes(val);

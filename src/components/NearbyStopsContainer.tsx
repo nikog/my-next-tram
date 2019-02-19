@@ -8,6 +8,8 @@ import NearbyStops from './NearbyStops';
 import { useQuery } from 'react-apollo-hooks';
 import { Mode } from '../types/globalTypes';
 import { Position } from '../types';
+import { NearbyStops as NearbyStopsType } from '../types/NearbyStops';
+import Messages from './Messages';
 
 type Props = {
   vehicleModeFilters: Mode[];
@@ -22,7 +24,7 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({
     ? vehicleModeFilters
     : R.values(Mode);
 
-  const { data, loading, error } = useQuery(getNearbyStops, {
+  const { data, loading, error } = useQuery<NearbyStopsType>(getNearbyStops, {
     variables: {
       transportMode,
       latitude,
@@ -33,16 +35,16 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({
   });
 
   if (error) {
-    return <p>Error</p>;
+    return <Messages message="error" />;
   }
 
   if (!data) {
-    return <p>no data</p>;
+    return <Messages message="error" />;
   }
 
   return (
     <NearbyStops
-      data={data.nearest}
+      data={data.nearest || {}}
       transportMode={transportMode}
       loading={loading}
     />

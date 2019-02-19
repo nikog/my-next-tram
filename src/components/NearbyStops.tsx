@@ -14,6 +14,7 @@ import {
   NearbyStops_nearest_edges,
   NearbyStops_nearest_edges_node
 } from '../types/NearbyStops';
+import Messages from './Messages';
 
 type ContainerProps = {
   color?: string | null;
@@ -101,7 +102,7 @@ const groupAndFilterDepartures = R.pipe(
 type Props = {
   loading?: boolean;
   transportMode?: Mode[];
-  data: NearbyStops_nearest;
+  data: NearbyStops_nearest | {};
 };
 
 const NearbyStops: React.FunctionComponent<Props> = ({
@@ -118,6 +119,7 @@ const NearbyStops: React.FunctionComponent<Props> = ({
       <PoseGroup animateOnMount={true} flipMove={false}>
         <StyledAnimatedRow key={JSON.stringify(transportMode)} color={color}>
           {!loading && departureRows}
+          {!departureRows.length && <Messages message="empty" />}
         </StyledAnimatedRow>
       </PoseGroup>
     </Container>

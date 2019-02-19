@@ -11,6 +11,7 @@ import { useLocation } from './utils/hooks';
 import './reset.css';
 import './style.css';
 import { Mode } from './types/globalTypes';
+import Messages from './components/Messages';
 
 const client = new ApolloClient({
   uri: 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
@@ -65,7 +66,7 @@ const App = () => {
   return (
     <ApolloProvider client={client}>
       <Vehicles dispatch={dispatch} activeFilters={state.filters} />
-      {!position && <p>Waiting for location</p>}
+      {!position && <Messages message="waiting-location" />}
       {position && (
         <NearbyStops vehicleModeFilters={state.filters} position={position} />
       )}

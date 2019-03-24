@@ -41,9 +41,17 @@ const AnimatedRow = posed.div({
 });
 
 const StyledAnimatedRow = styled(AnimatedRow)`
-  min-height: 100vh;
-  padding-bottom: 5rem;
+  // min-height: 100vh;
+  // padding-bottom: 5rem;
   background: ${(props: ContainerProps) => props.color};
+
+  > *:first-child {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  > *:last-child {
+    padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
+  }
 `;
 
 type GroupedEdges = [NearbyStops_nearest_edges, NearbyStops_nearest_edges];

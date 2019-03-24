@@ -34,7 +34,7 @@ const Group: AnyStyledComponent = styled.div`
 const PageIndicatorList = styled.div`
   z-index: 2;
   position: absolute;
-  top: 0;
+  top: max(env(safe-area-inset-bottom), 0);
   height: 1.5rem;
   width: 100%;
   display: flex;

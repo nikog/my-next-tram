@@ -59,6 +59,7 @@ const Button = styled.button`
   background: white;
   border: none;
   padding: 0.5rem;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;

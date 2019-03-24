@@ -10,7 +10,9 @@ const useIntersection = (
   const handleIntersection = (entries: IntersectionObserverEntry[]) => {
     const activeEntry =
       entries.length > 1
-        ? entries.find(({ isIntersecting }) => isIntersecting)
+        ? entries.reduce((prev, current) =>
+            prev.intersectionRatio > current.intersectionRatio ? prev : current
+          )
         : entries[0];
 
     if (!activeEntry) {

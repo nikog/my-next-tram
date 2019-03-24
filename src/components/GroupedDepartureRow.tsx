@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect, useState } from 'react';
 import styled, { AnyStyledComponent } from 'styled-components';
 
 import * as R from 'ramda';
@@ -18,16 +18,16 @@ const Group: AnyStyledComponent = styled.div`
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
   scroll-behaviour: smooth;
-  position: relative;
-  -webkit-overfow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     display: none;
   }
 
   > * {
     flex: 1 0 100%;
     scroll-snap-align: start;
+    overflow: visible;
   }
 `;
 
@@ -82,7 +82,7 @@ const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
   }, []);
 
   const activeIndex = useIntersection(pageRefs, containerRef, {
-    threshold: 0.6
+    threshold: 0.5
   });
 
   return (

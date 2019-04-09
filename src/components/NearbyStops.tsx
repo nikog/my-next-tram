@@ -4,15 +4,14 @@ import * as R from 'ramda';
 
 import posed, { PoseGroup } from 'react-pose';
 
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import GroupedDepartureRow from './GroupedDepartureRow';
 import { getColor } from '../utils/colors';
-import DepartureRow from './DepartureRow';
+
 import { Mode } from '../types/globalTypes';
 import {
   NearbyStops_nearest,
-  NearbyStops_nearest_edges,
-  NearbyStops_nearest_edges_node
+  NearbyStops_nearest_edges
 } from '../types/NearbyStops';
 import Messages from './Messages';
 
@@ -40,21 +39,11 @@ const AnimatedRow = posed.div({
   }
 });
 
-const StyledAnimatedRow = styled(AnimatedRow)`
-  // min-height: 100vh;
-  // padding-bottom: 5rem;
-  background: ${(props: ContainerProps) => props.color};
-
-  > *:first-child {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  > *:last-child {
-    padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
+const BackgroundColor = createGlobalStyle`
+  html {
+    background-color: ${(props: ContainerProps) => props.color};
   }
 `;
-
-type GroupedEdges = [NearbyStops_nearest_edges, NearbyStops_nearest_edges];
 
 const filterNoStopTimes = R.reject(
   R.pipe(
@@ -81,23 +70,9 @@ const lastPatternColor = R.pipe(
   getColor
 );
 
-const renderDepartureRows = R.map(
-  R.ifElse(
-    R.propSatisfies(R.gt(R.__, 1), 'length'),
-    (nodes: GroupedEdges) => (
-      <GroupedDepartureRow
-        nodes={nodes}
-        key={R.path([0, 'node', 'id'], nodes)}
-      />
-    ),
-    R.pipe(
-      R.path([0, 'node']),
-      (node: NearbyStops_nearest_edges_node) => (
-        <DepartureRow data={node} key={node && node.id} />
-      )
-    )
-  )
-);
+const renderDepartureRows = R.map((nodes: NearbyStops_nearest_edges[]) => (
+  <GroupedDepartureRow nodes={nodes} key={R.path([0, 'node', 'id'], nodes)} />
+));
 
 const groupAndFilterDepartures = R.pipe(
   R.propOr([], 'edges'),
@@ -119,16 +94,19 @@ const NearbyStops: React.FunctionComponent<Props> = ({
   loading
 }) => {
   const departures = groupAndFilterDepartures(data);
-  const departureRows = renderDepartureRows(departures);
+  const departureRows = renderDepartureRows(
+    departures as NearbyStops_nearest_edges[][]
+  );
   const color = lastPatternColor(departures);
 
   return (
     <Container>
+      <BackgroundColor color={color} />
       <PoseGroup animateOnMount={true} flipMove={false}>
-        <StyledAnimatedRow key={JSON.stringify(transportMode)} color={color}>
+        <AnimatedRow key={JSON.stringify(transportMode)}>
           {!loading && departureRows}
           {!departureRows.length && <Messages message="empty" />}
-        </StyledAnimatedRow>
+        </AnimatedRow>
       </PoseGroup>
     </Container>
   );

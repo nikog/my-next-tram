@@ -11,12 +11,7 @@ import {
 } from '../types/NearbyStops';
 import Counter from './Counter';
 
-type StyledDepartureRowProps = {
-  lineColor: string;
-};
-
 const StyledDepartureRow: AnyStyledComponent = styled.div`
-  background: ${(props: StyledDepartureRowProps) => props.lineColor};
   color: white;
   padding: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -95,8 +90,8 @@ const StyledRealtimeIcon = styled(RealtimeIcon)`
 
 type Props = {
   data: NearbyStops_nearest_edges_node;
-  ref?: React.Ref<HTMLElement> | null;
-  rowRef?: React.Ref<HTMLElement> | null;
+  ref?: React.Ref<HTMLInputElement> | null;
+  rowRef?: React.Ref<HTMLInputElement> | null;
 };
 
 const DepartureRow: React.FunctionComponent<Props> = ({ data, rowRef }) => {
@@ -108,13 +103,11 @@ const DepartureRow: React.FunctionComponent<Props> = ({ data, rowRef }) => {
   const pattern = place.pattern!;
 
   const route = pattern.route;
-
-  const color = getColor([route.shortName || '', route.mode || '']);
   const departureTime =
     (stoptime.serviceDay + stoptime.realtimeDeparture) * 1000;
 
   return (
-    <StyledDepartureRow lineColor={color} ref={rowRef}>
+    <StyledDepartureRow ref={rowRef}>
       <RouteInfo>
         <RouteName>{route && route.shortName}</RouteName>
         <Destination>

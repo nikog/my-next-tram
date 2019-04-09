@@ -27,7 +27,7 @@ type ButtonProps = {
 
 const Container = styled.div`
   padding: 1rem;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-bottom: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,6 +35,10 @@ const Container = styled.div`
   bottom: 0;
   width: 100vw;
   z-index: 3;
+
+  @supports (padding: max(0px)) {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
 `;
 
 const ButtonContainer = styled.div`

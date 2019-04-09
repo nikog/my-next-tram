@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect, useState } from 'react';
+import React, { useRef, useLayoutEffect, createRef } from 'react';
 import styled, { AnyStyledComponent } from 'styled-components';
 
 import * as R from 'ramda';
@@ -7,9 +7,23 @@ import DepartureRow from './DepartureRow';
 
 import useIntersection from '../utils/useIntersection';
 import { NearbyStops_nearest_edges } from '../types/NearbyStops';
+import { getColor } from '../utils/colors';
 
 const Container = styled.div`
   position: relative;
+  background-color: ${props => props.color};
+
+  &:first-child {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  &:last-child {
+    padding-bottom: 5rem;
+
+    @supports (padding: max(0px)) {
+      padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
+    }
+  }
 `;
 
 const Group: AnyStyledComponent = styled.div`
@@ -34,13 +48,17 @@ const Group: AnyStyledComponent = styled.div`
 const PageIndicatorList = styled.div`
   z-index: 2;
   position: absolute;
-  top: max(env(safe-area-inset-bottom), 0);
+  top: 0;
   height: 1.5rem;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+
+  @supports (padding: max(0px)) {
+    top: max(env(safe-area-inset-bottom), 0);
+  }
 `;
 
 type PageIndicatorProps = {
@@ -71,7 +89,10 @@ type Props = {
 
 const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
   const containerRef = useRef<HTMLElement>(null);
-  const pageRefs = [useRef<HTMLElement>(null), useRef<HTMLElement>(null)];
+  // const pageRefs = [useRef<HTMLElement>(null), useRef<HTMLElement>(null)];
+  const pageRefs = useRef<React.RefObject<HTMLInputElement>[]>(
+    nodes.map(() => createRef())
+  );
 
   useLayoutEffect(() => {
     const activeIndex = nearestNodeDirectionId(nodes);
@@ -81,21 +102,31 @@ const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
     }
   }, []);
 
-  const activeIndex = useIntersection(pageRefs, containerRef, {
+  const activeIndex = useIntersection(pageRefs.current, containerRef, {
     threshold: 0.5
   });
 
+  const color = R.pipe(
+    R.pathOr({}, [0, 'node', 'place', 'pattern', 'route']),
+    R.props(['shortName', 'mode']),
+    getColor
+  )(nodes);
+
   return (
-    <Container>
-      <PageIndicatorList>
-        {nodes.map((node, key) => (
-          <PageIndicator key={key} active={key === activeIndex} />
-        ))}
-      </PageIndicatorList>
+    <Container color={color}>
+      {nodes.length > 1 && (
+        <PageIndicatorList>
+          {nodes.map((node, key) => (
+            <PageIndicator key={key} active={key === activeIndex} />
+          ))}
+        </PageIndicatorList>
+      )}
       <Group ref={containerRef}>
         {nodes.map(
           ({ node }, key) =>
-            node && <DepartureRow key={key} data={node} ref={pageRefs[key]} />
+            node && (
+              <DepartureRow key={key} data={node} ref={pageRefs.current[key]} />
+            )
         )}
       </Group>
     </Container>

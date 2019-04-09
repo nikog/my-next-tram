@@ -25,7 +25,7 @@ export const useLocation = () => {
 
 export const useOnMinuteInterval = (callback: Function, time: number) => {
   useEffect(() => {
-    let timeout: NodeJS.Timeout, interval: number;
+    let timeout: number, interval: number;
     const seconds = Math.ceil((time / 1000) % 60);
     const minutes = Math.ceil((time / 1000 / 60) % 60);
 

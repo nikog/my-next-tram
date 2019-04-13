@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled, { css } from 'styled-components';
 
 import * as R from 'ramda';
@@ -14,11 +14,9 @@ import { ReactComponent as BusIcon } from '../icons/bus.svg';
 
 import { colors } from '../utils/colors';
 import { Mode } from '../types/globalTypes';
+import { StoreContext } from './Store';
 
-interface VehicleProps {
-  dispatch: Function;
-  activeFilters: Mode[];
-}
+interface VehicleProps {}
 
 type ButtonProps = {
   color: string;
@@ -104,41 +102,42 @@ const icons: { [index: string]: React.FunctionComponent } = {
   SUBWAY: SubwayIcon
 };
 
-const Vehicles: React.FunctionComponent<VehicleProps> = ({
-  dispatch,
-  activeFilters
-}) => (
-  <Container>
-    <ButtonContainer>
-      {R.pipe(
-        R.map<typeof vehicleMode, any[]>((val: Mode) => {
-          const Icon = icons[val];
+const Vehicles: React.FunctionComponent<VehicleProps> = ({}) => {
+  const { state, dispatch } = useContext(StoreContext)!;
 
-          const isActive = activeFilters.includes(val);
+  return (
+    <Container>
+      <ButtonContainer>
+        {R.pipe(
+          R.map<typeof vehicleMode, any[]>((val: Mode) => {
+            const Icon = icons[val];
 
-          return (
-            <Button
-              key={val}
-              type="button"
-              aria-label={`Filter by ${val}`}
-              color={colors[val]}
-              isActive={isActive}
-              onClick={() => {
-                if (isActive) {
-                  dispatch({ type: 'removeFilter', payload: val });
-                } else {
-                  dispatch({ type: 'addFilter', payload: val });
-                }
-              }}
-            >
-              {Icon ? <Icon /> : val}
-            </Button>
-          );
-        }),
-        R.values
-      )(vehicleMode)}
-    </ButtonContainer>
-  </Container>
-);
+            const isActive = state.filters.includes(val);
+
+            return (
+              <Button
+                key={val}
+                type="button"
+                aria-label={`Filter by ${val}`}
+                color={colors[val]}
+                isActive={isActive}
+                onClick={() => {
+                  if (isActive) {
+                    dispatch({ type: 'removeFilter', payload: val });
+                  } else {
+                    dispatch({ type: 'addFilter', payload: val });
+                  }
+                }}
+              >
+                {Icon ? <Icon /> : val}
+              </Button>
+            );
+          }),
+          R.values
+        )(vehicleMode)}
+      </ButtonContainer>
+    </Container>
+  );
+};
 
 export default Vehicles;

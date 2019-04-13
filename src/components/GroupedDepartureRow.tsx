@@ -13,9 +13,9 @@ const Container = styled.div`
   position: relative;
   background-color: ${props => props.color};
 
-  &:first-child {
-    padding-top: env(safe-area-inset-top);
-  }
+  // &:first-child {
+  //   padding-top: env(safe-area-inset-top);
+  // }
 
   &:last-child {
     padding-bottom: 5rem;

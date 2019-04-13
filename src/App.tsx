@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo-hooks';
@@ -6,70 +6,45 @@ import { ApolloProvider } from 'react-apollo-hooks';
 import Vehicles from './components/Vehicles';
 import NearbyStops from './components/NearbyStopsContainer';
 
-import { useLocation } from './utils/hooks';
+import { useLocation, useElementScrollOffset } from './utils/hooks';
 
 import './reset.css';
 import './style.css';
 import { Mode } from './types/globalTypes';
 import Messages from './components/Messages';
+import Map from './components/Map';
+import styled from 'styled-components';
+import { StoreProvider } from './components/Store';
 
 const client = new ApolloClient({
   uri: 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
 });
 
-type StateType = {
-  filters: Mode[];
-};
-
-type ActionType = {
-  type: 'addFilter' | 'removeFilter';
-  payload: Mode;
-};
-
-const reducer = (state: StateType, action: ActionType) => {
-  switch (action.type) {
-    case 'addFilter': {
-      const vehicleMode = action.payload;
-
-      return {
-        filters: [...state.filters, vehicleMode]
-      };
-    }
-
-    case 'removeFilter': {
-      const vehicleMode = action.payload;
-
-      return {
-        filters: state.filters.filter(filter => filter !== vehicleMode)
-      };
-    }
-  }
-  return state;
-};
-
-const persistedFiltersString = localStorage.getItem('filters');
-
-const initialState = {
-  filters: persistedFiltersString ? JSON.parse(persistedFiltersString) : []
-};
+const StopsList = styled.div`
+  position: relative;
+  top: calc(100vh - 10.875rem);
+`;
 
 const App = () => {
   // const position = useLocation();
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  useEffect(() =>
-    localStorage.setItem('filters', JSON.stringify(state.filters))
-  );
 
   const position = { latitude: 60.164829, longitude: 24.93425 };
 
+  const mapRef = useRef<HTMLDivElement>(null);
+  const offset = useElementScrollOffset(mapRef);
+
   return (
     <ApolloProvider client={client}>
-      <Vehicles dispatch={dispatch} activeFilters={state.filters} />
-      {!position && <Messages message="waiting-location" />}
-      {position && (
-        <NearbyStops vehicleModeFilters={state.filters} position={position} />
-      )}
+      <StoreProvider>
+        <Map position={position} height={offset ? offset.top : 0} />
+        <Vehicles />
+        {!position && <Messages message="waiting-location" />}
+        {position && (
+          <StopsList ref={mapRef}>
+            <NearbyStops />
+          </StopsList>
+        )}
+      </StoreProvider>
     </ApolloProvider>
   );
 };

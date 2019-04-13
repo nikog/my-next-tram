@@ -42,3 +42,29 @@ export const useOnMinuteInterval = (callback: Function, time: number) => {
     };
   }, [time]);
 };
+
+export const useElementScrollOffset = (
+  elementRef: React.RefObject<HTMLDivElement>
+) => {
+  const [offset, setOffset] = useState<ClientRect | DOMRect>();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!elementRef.current) {
+        return;
+      }
+
+      const offset = elementRef.current.getBoundingClientRect();
+
+      setOffset(offset);
+    };
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [elementRef]);
+
+  return offset;
+};

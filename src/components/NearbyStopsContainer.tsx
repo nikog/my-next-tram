@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import * as R from 'ramda';
 
@@ -10,25 +10,19 @@ import { Mode } from '../types/globalTypes';
 import { Position } from '../types';
 import { NearbyStops as NearbyStopsType } from '../types/NearbyStops';
 import Messages from './Messages';
+import { StoreProvider, StoreContext } from './Store';
 
-type Props = {
-  vehicleModeFilters: Mode[];
-  position: Position;
-};
+type Props = {};
 
-const NearbyStopsContainer: React.FunctionComponent<Props> = ({
-  vehicleModeFilters,
-  position: { latitude, longitude }
-}) => {
-  const transportMode = vehicleModeFilters.length
-    ? vehicleModeFilters
-    : R.values(Mode);
+const NearbyStopsContainer: React.FunctionComponent<Props> = () => {
+  const { state } = useContext(StoreContext)!;
+
+  const transportMode = state.filters.length ? state.filters : R.values(Mode);
 
   const { data, loading, error } = useQuery<NearbyStopsType>(getNearbyStops, {
     variables: {
       transportMode,
-      latitude,
-      longitude
+      ...state.location
     },
     pollInterval: 30 * 1000,
     suspend: false

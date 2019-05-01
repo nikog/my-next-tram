@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
-
-import { Position } from '../types';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import * as R from 'ramda';
+import { LatLng } from '../types';
 
 export const useLocation = () => {
-  const [position, setPosition] = useState<Position | null>(null);
+  const [position, setLatLng] = useState<LatLng | null>(null);
 
   useEffect(() => {
-    const success = ({
-      coords: { latitude, longitude }
-    }: {
-      coords: Position;
-    }) => setPosition({ latitude, longitude });
+    const success = ({ coords: { latitude, longitude } }: { coords: LatLng }) =>
+      setLatLng({ latitude, longitude });
     const err = (err: any) => console.error(err);
     const options = {
       // maximumAge: 60 * 1000,
@@ -41,4 +38,40 @@ export const useOnMinuteInterval = (callback: Function, time: number) => {
       clearInterval(interval);
     };
   }, [time]);
+};
+
+export const useElementScrollOffset = (
+  elementRef: React.RefObject<HTMLDivElement>
+) => {
+  const [offset, setOffset] = useState<ClientRect | DOMRect>();
+
+  useLayoutEffect(() => {
+    const handleScroll = () => {
+      if (!elementRef.current) {
+        return;
+      }
+
+      const element = elementRef.current;
+
+      const offset = element.getBoundingClientRect();
+
+      setOffset(offset);
+    };
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [elementRef]);
+
+  return offset;
+};
+
+export const usePrevious = (value: any) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = R.isEmpty(value) ? ref.current : value;
+  });
+  return ref.current;
 };

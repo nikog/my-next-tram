@@ -13,16 +13,12 @@ const Container = styled.div`
   position: relative;
   background-color: ${props => props.color};
 
-  &:first-child {
-    padding-top: env(safe-area-inset-top);
-  }
-
   &:last-child {
     padding-bottom: 5rem;
 
-    @supports (padding: max(0px)) {
-      padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
-    }
+    // @supports (padding: max(0px)) {
+    //   padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
+    // }
   }
 `;
 
@@ -55,10 +51,7 @@ const PageIndicatorList = styled.div`
   align-items: center;
   justify-content: center;
   pointer-events: none;
-
-  @supports (padding: max(0px)) {
-    top: max(env(safe-area-inset-bottom), 0);
-  }
+  top: 0;
 `;
 
 type PageIndicatorProps = {
@@ -134,3 +127,5 @@ const GroupedDepartureRow: React.FunctionComponent<Props> = ({ nodes }) => {
 };
 
 export default GroupedDepartureRow;
+
+export { Container as GroupedDepartureRowContainer };

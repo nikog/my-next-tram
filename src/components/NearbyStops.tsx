@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo, useLayoutEffect, useEffect } from 'react';
 
 import * as R from 'ramda';
 
@@ -11,15 +11,11 @@ import { getColor } from '../utils/colors';
 import { Mode } from '../types/globalTypes';
 import {
   NearbyStops_nearest,
-  NearbyStops_nearest_edges
+  NearbyStops_nearest_edges,
+  NearbyStops as NearbyStopsType
 } from '../types/NearbyStops';
 import Messages from './Messages';
-
-type ContainerProps = {
-  color?: string | null;
-};
-
-const Container = styled.div``;
+import { usePrevious } from '../utils/hooks';
 
 const AnimatedRow = posed.div({
   enter: {
@@ -39,29 +35,19 @@ const AnimatedRow = posed.div({
   }
 });
 
+type BackgroundProps = {
+  color: string;
+};
+
 const BackgroundColor = createGlobalStyle`
   html {
-    background-color: ${(props: ContainerProps) => props.color};
+    background-color: ${(props: BackgroundProps) => props.color};
+  }
+
+  html, body, .root {
+    height: 100vh;
   }
 `;
-
-const filterNoStopTimes = R.reject(
-  R.pipe(
-    R.pathOr([], ['node', 'place', 'stoptimes']),
-    R.length,
-    R.equals(0)
-  )
-);
-
-const distanceSort = R.sortBy(R.pathOr(0, [0, 'node', 'distance']));
-const groupDirectionSort = R.map(
-  R.sortBy(R.pathOr(0, ['node', 'place', 'pattern', 'directionId']))
-);
-
-const groupByRoute = R.pipe(
-  R.groupBy(R.pathOr('', ['node', 'place', 'pattern', 'route', 'id'])),
-  R.values
-);
 
 const lastPatternColor = R.pipe(
   (arr: any[]) => R.last(arr),
@@ -74,41 +60,29 @@ const renderDepartureRows = R.map((nodes: NearbyStops_nearest_edges[]) => (
   <GroupedDepartureRow nodes={nodes} key={R.path([0, 'node', 'id'], nodes)} />
 ));
 
-const groupAndFilterDepartures = R.pipe(
-  R.propOr([], 'edges'),
-  filterNoStopTimes,
-  groupByRoute,
-  distanceSort,
-  groupDirectionSort
-);
-
 type Props = {
-  loading?: boolean;
-  transportMode?: Mode[];
-  data: NearbyStops_nearest | {};
+  data: NearbyStops_nearest_edges[][];
 };
 
-const NearbyStops: React.FunctionComponent<Props> = ({
-  data,
-  transportMode,
-  loading
-}) => {
-  const departures = groupAndFilterDepartures(data);
-  const departureRows = renderDepartureRows(
-    departures as NearbyStops_nearest_edges[][]
+const NearbyStops: React.FunctionComponent<Props> = ({ data }) => {
+  const { departureRows, color } = useMemo(
+    () => ({
+      departureRows: renderDepartureRows(data),
+      color: lastPatternColor(data)
+    }),
+    [data]
   );
-  const color = lastPatternColor(departures);
 
   return (
-    <Container>
+    <>
       <BackgroundColor color={color} />
-      <PoseGroup animateOnMount={true} flipMove={false}>
-        <AnimatedRow key={JSON.stringify(transportMode)}>
-          {!loading && departureRows}
-          {!departureRows.length && <Messages message="empty" />}
-        </AnimatedRow>
-      </PoseGroup>
-    </Container>
+      {/* <PoseGroup animateOnMount={true} flipMove={false}> */}
+      {/* <AnimatedRow key={0}> */}
+      {departureRows}
+      {/* {!departureRows.length && <Mssages message="empty" />} */}
+      {/* </AnimatedRow> */}
+      {/* </PoseGroup> */}
+    </>
   );
 };
 

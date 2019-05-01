@@ -1,6 +1,6 @@
-export type Position = {
-  latitude?: number;
-  longitude?: number;
+export type LatLng = {
+  latitude: number;
+  longitude: number;
 };
 
 export enum vehicleMode {

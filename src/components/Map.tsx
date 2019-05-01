@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useContext } from 'react';
 import leaflet, { map } from 'leaflet';
 import { StoreContext } from './Store';
 import { createGlobalStyle } from 'styled-components';
+import { setLoading, setLocation } from '../state/actions';
 
 type MapProps = {
   // position: { latitude: number; longitude: number };
@@ -30,7 +31,7 @@ const Map: React.FunctionComponent<MapProps> = ({ height }) => {
     }
 
     const mapInstance = leaflet.map(mapRef.current, {
-      center: [state.location.latitude, state.location.longitude],
+      center: [state.location!.latitude, state.location!.longitude],
       zoom: 16,
       zoomControl: false,
       layers: [
@@ -48,24 +49,18 @@ const Map: React.FunctionComponent<MapProps> = ({ height }) => {
     });
 
     mapInstance.on('movestart', () => {
-      dispatch({
-        type: 'setLoading',
-        payload: true
-      });
+      dispatch(setLoading(true));
     });
 
     mapInstance.on('moveend', () => {
       const center = mapInstance.getCenter();
 
-      dispatch({
-        type: 'setLocation',
-        payload: { latitude: center.lat, longitude: center.lng }
-      });
+      dispatch(setLocation({ latitude: center.lat, longitude: center.lng }));
     });
 
     const myIcon = leaflet.divIcon({ className: 'my-div-icon' });
     const marker = leaflet
-      .marker([state.location.latitude, state.location.longitude], {
+      .marker([state.location!.latitude, state.location!.longitude], {
         icon: myIcon
       })
       .addTo(mapInstance);

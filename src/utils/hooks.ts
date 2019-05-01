@@ -1,16 +1,13 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import * as R from 'ramda';
-import { Position } from '../types';
+import { LatLng } from '../types';
 
 export const useLocation = () => {
-  const [position, setPosition] = useState<Position | null>(null);
+  const [position, setLatLng] = useState<LatLng | null>(null);
 
   useEffect(() => {
-    const success = ({
-      coords: { latitude, longitude }
-    }: {
-      coords: Position;
-    }) => setPosition({ latitude, longitude });
+    const success = ({ coords: { latitude, longitude } }: { coords: LatLng }) =>
+      setLatLng({ latitude, longitude });
     const err = (err: any) => console.error(err);
     const options = {
       // maximumAge: 60 * 1000,

@@ -1,64 +1,9 @@
 import React, { useReducer, useEffect } from 'react';
 import { Mode } from '../types/globalTypes';
-
-type StateType = {
-  loading: boolean;
-  location: { latitude: number; longitude: number };
-  filters: Mode[];
-};
-
-type ActionType = {
-  type: 'addFilter' | 'removeFilter' | 'setLocation' | 'setLoading';
-  payload: any;
-};
-
-const reducer = (state: StateType, action: ActionType) => {
-  switch (action.type) {
-    case 'addFilter': {
-      const vehicleMode = action.payload as Mode;
-
-      return {
-        ...state,
-        filters: [...state.filters, vehicleMode]
-      };
-    }
-
-    case 'removeFilter': {
-      const vehicleMode = action.payload as Mode;
-
-      return {
-        ...state,
-        filters: state.filters.filter(filter => filter !== vehicleMode)
-      };
-    }
-
-    case 'setLocation': {
-      return {
-        ...state,
-        location: action.payload
-      };
-    }
-
-    case 'setLoading': {
-      return {
-        ...state,
-        loading: action.payload
-      };
-    }
-  }
-  return state;
-};
-
-const persistedFiltersString = localStorage.getItem('filters');
-
-const initialState = {
-  loading: false,
-  location: null,
-  filters: persistedFiltersString ? JSON.parse(persistedFiltersString) : []
-};
+import { reducer, initialState, State } from '../state/reducer';
 
 const StoreContext = React.createContext<{
-  state: StateType;
+  state: State;
   dispatch: React.Dispatch<any>;
 } | null>(null);
 

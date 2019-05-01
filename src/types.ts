@@ -1,4 +1,4 @@
-export type Position = {
+export type LatLng = {
   latitude: number;
   longitude: number;
 };

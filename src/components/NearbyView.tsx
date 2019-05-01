@@ -19,6 +19,7 @@ import Messages from './Messages';
 import Map from './Map';
 import styled from 'styled-components';
 import { StoreContext } from './Store';
+import { setLocation, setLoading } from '../state/actions';
 
 type StopsListProps = {
   loading: boolean;
@@ -31,13 +32,13 @@ const StyledStopsList = styled.div`
   ${(props: StopsListProps) => props.loading && 'filter: brightness(50%);'}
 `;
 
-const debugPosition = { latitude: 60.164829, longitude: 24.93425 };
+const debugLatLng = { latitude: 60.164829, longitude: 24.93425 };
 
 const NearbyView = () => {
   const { state, dispatch } = useContext(StoreContext)!;
   // const position = useLocation();
   const initialised = useRef(false);
-  const position = debugPosition;
+  const position = debugLatLng;
   const mapRef = useRef<HTMLDivElement>(null);
   const offset = useElementScrollOffset(mapRef);
   const [mapHeight, setMapHeight] = useState(0);
@@ -47,7 +48,7 @@ const NearbyView = () => {
   }, [offset]);
 
   useEffect(() => {
-    dispatch({ type: 'setLocation', payload: position });
+    dispatch(setLocation(position));
   }, [position]);
 
   const handleLoad = useCallback(() => {
@@ -62,10 +63,7 @@ const NearbyView = () => {
       setMapHeight(rect.height ? rect.top : 0);
     }
 
-    dispatch({
-      type: 'setLoading',
-      payload: false
-    });
+    dispatch(setLoading(false));
   }, [dispatch, setMapHeight, mapRef, initialised]);
 
   const listComponents = useMemo(

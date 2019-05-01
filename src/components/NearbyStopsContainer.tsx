@@ -7,7 +7,7 @@ import { getNearbyStops } from '../queries';
 import NearbyStops from './NearbyStops';
 import { useQuery } from 'react-apollo-hooks';
 import { Mode } from '../types/globalTypes';
-import { Position } from '../types';
+import { LatLng } from '../types';
 import { NearbyStops as NearbyStopsType } from '../types/NearbyStops';
 import Messages from './Messages';
 import { StoreProvider, StoreContext } from './Store';
@@ -21,6 +21,8 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({ onLoad }) => {
   const { state } = useContext(StoreContext)!;
 
   const transportMode = state.filters.length ? state.filters : R.values(Mode);
+
+  console.log(state.filters);
 
   const { data, loading, error } = useQuery<NearbyStopsType>(getNearbyStops, {
     variables: {

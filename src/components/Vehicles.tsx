@@ -15,6 +15,7 @@ import { ReactComponent as BusIcon } from '../icons/bus.svg';
 import { colors } from '../utils/colors';
 import { Mode } from '../types/globalTypes';
 import { StoreContext } from './Store';
+import { removeFilter, addFilter } from '../state/actions';
 
 interface VehicleProps {}
 
@@ -123,9 +124,9 @@ const Vehicles: React.FunctionComponent<VehicleProps> = ({}) => {
                 isActive={isActive}
                 onClick={() => {
                   if (isActive) {
-                    dispatch({ type: 'removeFilter', payload: val });
+                    dispatch(removeFilter(val));
                   } else {
-                    dispatch({ type: 'addFilter', payload: val });
+                    dispatch(addFilter(val));
                   }
                 }}
               >

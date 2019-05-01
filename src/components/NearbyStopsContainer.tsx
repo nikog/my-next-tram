@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import * as R from 'ramda';
 
@@ -11,10 +11,13 @@ import { Position } from '../types';
 import { NearbyStops as NearbyStopsType } from '../types/NearbyStops';
 import Messages from './Messages';
 import { StoreProvider, StoreContext } from './Store';
+import { usePrevious } from '../utils/hooks';
 
-type Props = {};
+type Props = {
+  onLoad: Function;
+};
 
-const NearbyStopsContainer: React.FunctionComponent<Props> = () => {
+const NearbyStopsContainer: React.FunctionComponent<Props> = ({ onLoad }) => {
   const { state } = useContext(StoreContext)!;
 
   const transportMode = state.filters.length ? state.filters : R.values(Mode);
@@ -28,6 +31,8 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = () => {
     suspend: false
   });
 
+  const prevData = usePrevious(data);
+
   if (error) {
     return <Messages message="error" />;
   }
@@ -36,10 +41,12 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = () => {
     return <Messages message="error" />;
   }
 
+  const displayedData = loading ? prevData : data;
+
   return (
     <NearbyStops
-      data={data.nearest || {}}
-      transportMode={transportMode}
+      onUpdated={onLoad}
+      data={(displayedData && displayedData.nearest) || {}}
       loading={loading}
     />
   );

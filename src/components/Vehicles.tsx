@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, memo } from 'react';
 import styled, { css } from 'styled-components';
 
 import * as R from 'ramda';

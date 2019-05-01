@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import * as R from 'ramda';
 import { Position } from '../types';
 
 export const useLocation = () => {
@@ -48,13 +48,15 @@ export const useElementScrollOffset = (
 ) => {
   const [offset, setOffset] = useState<ClientRect | DOMRect>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleScroll = () => {
       if (!elementRef.current) {
         return;
       }
 
-      const offset = elementRef.current.getBoundingClientRect();
+      const element = elementRef.current;
+
+      const offset = element.getBoundingClientRect();
 
       setOffset(offset);
     };
@@ -67,4 +69,12 @@ export const useElementScrollOffset = (
   }, [elementRef]);
 
   return offset;
+};
+
+export const usePrevious = (value: any) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = R.isEmpty(value) ? ref.current : value;
+  });
+  return ref.current;
 };

@@ -2,12 +2,13 @@ import React, { useReducer, useEffect } from 'react';
 import { Mode } from '../types/globalTypes';
 
 type StateType = {
+  loading: boolean;
   location: { latitude: number; longitude: number };
   filters: Mode[];
 };
 
 type ActionType = {
-  type: 'addFilter' | 'removeFilter' | 'setLocation';
+  type: 'addFilter' | 'removeFilter' | 'setLocation' | 'setLoading';
   payload: any;
 };
 
@@ -37,6 +38,13 @@ const reducer = (state: StateType, action: ActionType) => {
         location: action.payload
       };
     }
+
+    case 'setLoading': {
+      return {
+        ...state,
+        loading: action.payload
+      };
+    }
   }
   return state;
 };
@@ -44,6 +52,7 @@ const reducer = (state: StateType, action: ActionType) => {
 const persistedFiltersString = localStorage.getItem('filters');
 
 const initialState = {
+  loading: false,
   location: null,
   filters: persistedFiltersString ? JSON.parse(persistedFiltersString) : []
 };

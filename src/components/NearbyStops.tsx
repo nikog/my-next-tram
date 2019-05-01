@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo, useLayoutEffect, useEffect } from 'react';
 
 import * as R from 'ramda';
 
@@ -11,15 +11,20 @@ import { getColor } from '../utils/colors';
 import { Mode } from '../types/globalTypes';
 import {
   NearbyStops_nearest,
-  NearbyStops_nearest_edges
+  NearbyStops_nearest_edges,
+  NearbyStops as NearbyStopsType
 } from '../types/NearbyStops';
 import Messages from './Messages';
+import { usePrevious } from '../utils/hooks';
 
 type ContainerProps = {
   color?: string | null;
+  loading?: boolean;
 };
 
-const Container = styled.div``;
+const Container = styled.div`
+  ${(props: ContainerProps) => props.loading && 'opacity: 0.5;'};
+`;
 
 const AnimatedRow = posed.div({
   enter: {
@@ -42,6 +47,10 @@ const AnimatedRow = posed.div({
 const BackgroundColor = createGlobalStyle`
   html {
     background-color: ${(props: ContainerProps) => props.color};
+  }
+
+  html, body, .root {
+    height: 100vh;
   }
 `;
 
@@ -84,30 +93,40 @@ const groupAndFilterDepartures = R.pipe(
 
 type Props = {
   loading?: boolean;
-  transportMode?: Mode[];
   data: NearbyStops_nearest | {};
+  onUpdated: Function;
 };
 
 const NearbyStops: React.FunctionComponent<Props> = ({
   data,
-  transportMode,
-  loading
+  loading = false,
+  onUpdated
 }) => {
-  const departures = groupAndFilterDepartures(data);
-  const departureRows = renderDepartureRows(
-    departures as NearbyStops_nearest_edges[][]
-  );
-  const color = lastPatternColor(departures);
+  const { departureRows, color } = useMemo(() => {
+    const departures = groupAndFilterDepartures(data);
+    const departureRows = renderDepartureRows(
+      departures as NearbyStops_nearest_edges[][]
+    );
+    const color = lastPatternColor(departures);
+
+    return { departureRows, color };
+  }, [data]);
+
+  useEffect(() => {
+    // if (departureRows.length) {
+    onUpdated();
+    // }
+  }, [departureRows.length]);
 
   return (
-    <Container>
+    <Container loading={loading}>
       <BackgroundColor color={color} />
-      <PoseGroup animateOnMount={true} flipMove={false}>
-        <AnimatedRow key={JSON.stringify(transportMode)}>
-          {!loading && departureRows}
-          {!departureRows.length && <Messages message="empty" />}
-        </AnimatedRow>
-      </PoseGroup>
+      {/* <PoseGroup animateOnMount={true} flipMove={false}> */}
+      {/* <AnimatedRow key={0}> */}
+      {departureRows}
+      {/* {!departureRows.length && <Mssages message="empty" />} */}
+      {/* </AnimatedRow> */}
+      {/* </PoseGroup> */}
     </Container>
   );
 };

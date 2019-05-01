@@ -1,14 +1,24 @@
 import React, { useEffect, useRef, useContext } from 'react';
 import leaflet, { map } from 'leaflet';
 import { StoreContext } from './Store';
+import { createGlobalStyle } from 'styled-components';
 
 type MapProps = {
-  position: { latitude: number; longitude: number };
+  // position: { latitude: number; longitude: number };
   height: number;
 };
 
-const Map: React.FunctionComponent<MapProps> = ({ position, height }) => {
-  const { dispatch } = useContext(StoreContext)!;
+const MapStyles = createGlobalStyle`
+  .my-div-icon {
+    width: 2rem;
+    height: 2rem
+    border-radius: 50%;
+    background-color: red;
+  }
+`;
+
+const Map: React.FunctionComponent<MapProps> = ({ height }) => {
+  const { state, dispatch } = useContext(StoreContext)!;
 
   const map = useRef<leaflet.Map>();
   const renderOptions = useRef<any>({});
@@ -20,13 +30,16 @@ const Map: React.FunctionComponent<MapProps> = ({ position, height }) => {
     }
 
     const mapInstance = leaflet.map(mapRef.current, {
-      center: [position.latitude, position.longitude],
+      center: [state.location.latitude, state.location.longitude],
       zoom: 16,
       zoomControl: false,
       layers: [
         leaflet.tileLayer(
-          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://cdn.digitransit.fi/map/v1/hsl-map/{z}/{x}/{y}.png',
+          // 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           {
+            tileSize: 512,
+            zoomOffset: -1,
             attribution:
               '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }
@@ -34,17 +47,36 @@ const Map: React.FunctionComponent<MapProps> = ({ position, height }) => {
       ]
     });
 
-    mapInstance.on('moveend', () => {
-      if (renderOptions.current.preventEvents) {
-        return;
-      }
+    mapInstance.on('movestart', () => {
+      dispatch({
+        type: 'setLoading',
+        payload: true
+      });
+    });
 
+    mapInstance.on('moveend', () => {
       const center = mapInstance.getCenter();
 
       dispatch({
         type: 'setLocation',
         payload: { latitude: center.lat, longitude: center.lng }
       });
+    });
+
+    const myIcon = leaflet.divIcon({ className: 'my-div-icon' });
+    const marker = leaflet
+      .marker([state.location.latitude, state.location.longitude], {
+        icon: myIcon
+      })
+      .addTo(mapInstance);
+    mapInstance.on('move', () => {
+      if (!map.current) {
+        return;
+      }
+
+      const center = map.current.getCenter();
+
+      marker.setLatLng(center);
     });
 
     map.current = mapInstance;
@@ -55,25 +87,22 @@ const Map: React.FunctionComponent<MapProps> = ({ position, height }) => {
       return;
     }
 
-    renderOptions.current.preventEvents = true;
-
     // @ts-ignore
-    map.current.invalidateSize({ debounceMoveEnd: true });
-
-    map.current.once('moveend', () => {
-      renderOptions.current.preventEvents = false;
-    });
-  }, [height]);
+    map.current.invalidateSize({ debounceMoveend: true });
+  }, [map, height]);
 
   return (
-    <div
-      ref={mapRef}
-      style={{
-        width: '100vw',
-        height: `${height}px`,
-        position: 'fixed'
-      }}
-    />
+    <>
+      <MapStyles />
+      <div
+        ref={mapRef}
+        style={{
+          width: '100vw',
+          height: height ? `${height}px` : '100vh',
+          position: 'fixed'
+        }}
+      />
+    </>
   );
 };
 

@@ -47,7 +47,7 @@ const NearbyStopsContainer: React.FunctionComponent<Props> = ({ onLoad }) => {
     <NearbyStops
       onUpdated={onLoad}
       data={(displayedData && displayedData.nearest) || {}}
-      loading={loading}
+      loading={state.loading}
     />
   );
 };

@@ -17,15 +17,6 @@ import {
 import Messages from './Messages';
 import { usePrevious } from '../utils/hooks';
 
-type ContainerProps = {
-  color?: string | null;
-  loading?: boolean;
-};
-
-const Container = styled.div`
-  ${(props: ContainerProps) => props.loading && 'opacity: 0.5;'};
-`;
-
 const AnimatedRow = posed.div({
   enter: {
     opacity: 1,
@@ -44,9 +35,13 @@ const AnimatedRow = posed.div({
   }
 });
 
+type BackgroundProps = {
+  color: string;
+};
+
 const BackgroundColor = createGlobalStyle`
   html {
-    background-color: ${(props: ContainerProps) => props.color};
+    background-color: ${(props: BackgroundProps) => props.color};
   }
 
   html, body, .root {
@@ -119,7 +114,7 @@ const NearbyStops: React.FunctionComponent<Props> = ({
   }, [departureRows.length]);
 
   return (
-    <Container loading={loading}>
+    <>
       <BackgroundColor color={color} />
       {/* <PoseGroup animateOnMount={true} flipMove={false}> */}
       {/* <AnimatedRow key={0}> */}
@@ -127,7 +122,7 @@ const NearbyStops: React.FunctionComponent<Props> = ({
       {/* {!departureRows.length && <Mssages message="empty" />} */}
       {/* </AnimatedRow> */}
       {/* </PoseGroup> */}
-    </Container>
+    </>
   );
 };
 

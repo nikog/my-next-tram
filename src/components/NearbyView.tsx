@@ -20,9 +20,15 @@ import Map from './Map';
 import styled from 'styled-components';
 import { StoreContext } from './Store';
 
+type StopsListProps = {
+  loading: boolean;
+};
+
 const StyledStopsList = styled.div`
   position: relative;
   top: calc(100vh - 10.875rem);
+
+  ${(props: StopsListProps) => props.loading && 'filter: brightness(50%);'}
 `;
 
 const debugPosition = { latitude: 60.164829, longitude: 24.93425 };
@@ -65,13 +71,13 @@ const NearbyView = () => {
   const listComponents = useMemo(
     () => (
       <>
-        <StyledStopsList ref={mapRef}>
+        <StyledStopsList ref={mapRef} loading={state.loading}>
           <NearbyStops onLoad={handleLoad} />
         </StyledStopsList>
         <Vehicles />
       </>
     ),
-    [mapRef, handleLoad]
+    [mapRef, handleLoad, state.loading]
   );
 
   return state.location ? (

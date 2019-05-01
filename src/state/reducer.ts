@@ -18,8 +18,6 @@ export const reducer = (state: State, action: Action) => {
     case 'addFilter': {
       const vehicleMode = action.payload as Mode;
 
-      console.log('add');
-
       return {
         ...state,
         filters: [...state.filters, vehicleMode]
@@ -28,8 +26,6 @@ export const reducer = (state: State, action: Action) => {
 
     case 'removeFilter': {
       const vehicleMode = action.payload as Mode;
-
-      console.log('remove');
 
       return {
         ...state,

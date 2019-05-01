@@ -48,7 +48,9 @@ const NearbyView = () => {
   }, [offset]);
 
   useEffect(() => {
-    dispatch(setLocation(position));
+    if (position) {
+      dispatch(setLocation(position));
+    }
   }, [position]);
 
   const handleLoad = useCallback(() => {
